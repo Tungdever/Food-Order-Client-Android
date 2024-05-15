@@ -23,6 +23,15 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".activity.orderSellerManagement.DetailOfOrderDeliveryManagementActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.orderSellerManagement.DeliveryManagementActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.FeedBackActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.order.OrderDetailActivity"
             android:exported="false" />
         <activity
