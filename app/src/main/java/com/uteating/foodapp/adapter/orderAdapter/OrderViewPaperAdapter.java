@@ -12,29 +12,28 @@ import com.uteating.foodapp.model.Bill;
 import java.util.ArrayList;
 
 public class OrderViewPaperAdapter extends FragmentStateAdapter {
-    private ArrayList<Bill> listCurrentOrder;
-    private ArrayList <Bill> listHistoryOrder;
+    private ArrayList<Bill> dsCurrentOrder;
+    private ArrayList <Bill> dsHistoryOrder;
     private String userId;
 
-    public OrderViewPaperAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<Bill> listCurrentOrder,
-                                 ArrayList<Bill> listHistoryOrder, String userId) {
+    public OrderViewPaperAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<Bill> dsCurrentOrder, ArrayList <Bill> dsHistoryOrder,String id) {
         super(fragmentActivity);
-        this.listCurrentOrder = listCurrentOrder;
-        this.listHistoryOrder = listHistoryOrder;
-        this.userId = userId;
+        this.dsCurrentOrder=dsCurrentOrder;
+        this.dsHistoryOrder=dsHistoryOrder;
+        this.userId = id;
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
         if (position == 1) {
-            return new HistoryOrderFragment(listHistoryOrder, userId);
+            return new HistoryOrderFragment(dsHistoryOrder, userId);
         }
-        return new CurrentOrderFragment(listCurrentOrder, userId);
+        return new CurrentOrderFragment(dsCurrentOrder, userId);
     }
 
     @Override
     public int getItemCount() {
-        return 3;
+        return 2;
     }
 }

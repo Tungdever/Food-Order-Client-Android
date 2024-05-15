@@ -28,6 +28,7 @@ public class OrderDetailAdapter  extends RecyclerView.Adapter{
         this.context = context;
         this.ds = ds;
     }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -62,8 +63,9 @@ public class OrderDetailAdapter  extends RecyclerView.Adapter{
 
     @Override
     public int getItemCount() {
-        return 0;
+        return ds == null ? 0 : ds.size();
     }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         ItemBillinfoBinding binding;
         public ViewHolder(@NonNull ItemBillinfoBinding tmp) {

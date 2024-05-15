@@ -9,13 +9,16 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.uteating.foodapp.R;
+import com.uteating.foodapp.adapter.DeliveryManagement_Seller.ListOfItemInOrderAdapter;
 import com.uteating.foodapp.databinding.ActivityDetailOfOrderDeliveryManagementBinding;
+import com.uteating.foodapp.helper.FirebaseOrderDetailHelper;
 import com.uteating.foodapp.model.BillInfo;
 
 import java.util.List;
 
 public class DetailOfOrderDeliveryManagementActivity extends AppCompatActivity {
     private ActivityDetailOfOrderDeliveryManagementBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,7 +44,31 @@ public class DetailOfOrderDeliveryManagementActivity extends AppCompatActivity {
                 {
                     binding.txtStatusOrderDetail.setTextColor(Color.parseColor("#48DC7D"));
                 }
+                new FirebaseOrderDetailHelper().readOrderDetail(addressId, recipientId, billId, new FirebaseOrderDetailHelper.DataStatus() {
+                    @Override
+                    public void DataIsLoaded(String addresss, List<BillInfo> billInfos) {
+                        binding.txtAddressDetail.setText(addresss);
+                        ListOfItemInOrderAdapter adapter = new ListOfItemInOrderAdapter(DetailOfOrderDeliveryManagementActivity.this,billInfos);
+                        binding.recOrderDetail.setLayoutManager(new LinearLayoutManager(DetailOfOrderDeliveryManagementActivity.this));
+                        binding.recOrderDetail.setHasFixedSize(true);
+                        binding.recOrderDetail.setAdapter(adapter);
+                    }
 
+                    @Override
+                    public void DataIsInserted() {
+
+                    }
+
+                    @Override
+                    public void DataIsUpdated() {
+
+                    }
+
+                    @Override
+                    public void DataIsDeleted() {
+
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -57,6 +84,7 @@ public class DetailOfOrderDeliveryManagementActivity extends AppCompatActivity {
             }
         });
     }
+
     private String convertToMoney(long price) {
         String temp = String.valueOf(price);
         String output = "";

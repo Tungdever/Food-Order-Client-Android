@@ -18,6 +18,7 @@ public class DeliveryManagementActivity extends AppCompatActivity {
     private String userId;
     private StatusManagementPagerAdapter statusPagerAdapter;
     private Notification notification;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

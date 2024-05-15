@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Notification;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,6 +22,7 @@ import com.uteating.foodapp.databinding.ActivityOrderDetailBinding;
 import com.uteating.foodapp.dialog.LoadingDialog;
 import com.uteating.foodapp.model.Bill;
 import com.uteating.foodapp.model.BillInfo;
+import com.uteating.foodapp.model.Notification;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,10 +35,10 @@ public class OrderDetailActivity extends AppCompatActivity {
     private LoadingDialog loadingDialog;
     private String userId;
     private Notification notification;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_order_detail);
         binding=ActivityOrderDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -52,6 +53,7 @@ public class OrderDetailActivity extends AppCompatActivity {
         loadingDialog=new LoadingDialog(this);
         loadingDialog.show();
     }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -70,6 +72,7 @@ public class OrderDetailActivity extends AppCompatActivity {
         initData();
 
     }
+
     private void initData() {
         FirebaseDatabase.getInstance().getReference("BillInfos").child(currentBill.getBillId()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -93,7 +96,9 @@ public class OrderDetailActivity extends AppCompatActivity {
         if (status.equalsIgnoreCase("Completed")) {
             binding.lnOderDetail.btn.setVisibility(View.VISIBLE);
             binding.imgStatus.setImageResource(R.drawable.line_status_completed);
-        }else {
+        } else if (status.equalsIgnoreCase("Shipping")) {
+            binding.imgStatus.setImageResource(R.drawable.line_status_shipping);
+        } else {
             binding.imgStatus.setImageResource(R.drawable.line_status_confirmed);
         }
         OrderDetailAdapter adapter=new OrderDetailAdapter(this,dsBillInfo);
@@ -123,7 +128,7 @@ public class OrderDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 filterItemChecked();
-                Intent intent=new Intent(OrderDetailActivity.this, FeedBackActivity.class);
+                Intent intent=new Intent(OrderDetailActivity.this,FeedBackActivity.class);
                 intent.putExtra("Current Bill",currentBill);
                 intent.putExtra("List of billInfo",dsBillInfo);
                 intent.putExtra("userId",userId);

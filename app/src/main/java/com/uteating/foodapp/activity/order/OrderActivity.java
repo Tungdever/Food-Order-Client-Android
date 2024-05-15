@@ -15,6 +15,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.uteating.foodapp.R;
 import com.uteating.foodapp.adapter.orderAdapter.OrderViewPaperAdapter;
 import com.uteating.foodapp.databinding.ActivityOrderBinding;
+import com.uteating.foodapp.dialog.LoadingDialog;
 import com.uteating.foodapp.model.Bill;
 
 import java.util.ArrayList;
@@ -26,7 +27,8 @@ public class OrderActivity extends AppCompatActivity {
     public static final int HISTORY_ORDER = 10002;
     private ArrayList<Bill> dsCurrentOrder=new ArrayList<>();
     private ArrayList<Bill> dsHistoryOrder=new ArrayList<>();
-    //private LoadingDialog dialog;
+    private LoadingDialog dialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,21 +37,12 @@ public class OrderActivity extends AppCompatActivity {
 
         getWindow().setStatusBarColor(Color.parseColor("#E8584D"));
         getWindow().setNavigationBarColor(Color.parseColor("#E8584D"));
-// Ví dụ về cách tạo đối tượng Bill cứng và thêm vào danh sách dsCurrentOrder
-        dsCurrentOrder.add(new Bill("address_id_1", "bill_id_1", "2024-05-13", "Completed", true, "recipient_id_1", "sender_id_1", 100000, "image_url_1"));
-        dsCurrentOrder.add(new Bill("address_id_2", "bill_id_2", "2024-05-14", "Pending", false, "recipient_id_2", "sender_id_2", 150000, "image_url_2"));
-        dsCurrentOrder.add(new Bill("address_id_3", "bill_id_3", "2024-05-15", "Completed", false, "recipient_id_3", "sender_id_3", 200000, "image_url_3"));
 
-// Ví dụ về cách tạo đối tượng Bill cứng và thêm vào danh sách dsHistoryOrder
-        dsHistoryOrder.add(new Bill("address_id_4", "bill_id_4", "2024-05-10", "Completed", true, "recipient_id_4", "sender_id_4", 120000, "image_url_4"));
-        dsHistoryOrder.add(new Bill("address_id_5", "bill_id_5", "2024-05-11", "Completed", true, "recipient_id_5", "sender_id_5", 180000, "image_url_5"));
-        dsHistoryOrder.add(new Bill("address_id_6", "bill_id_6", "2024-05-12", "Completed", true, "recipient_id_6", "sender_id_6", 220000, "image_url_6"));
+        userId = getIntent().getStringExtra("userId");
+        dialog = new LoadingDialog(this);
+        dialog.show();
 
-        //userId = getIntent().getStringExtra("userId");
-        //dialog = new LoadingDialog(this);
-        //dialog.show();
-        initUI();
-        //initData();
+        initData();
 
         binding.imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,8 +66,9 @@ public class OrderActivity extends AppCompatActivity {
                     break;
             }
         })).attach();
-        //dialog.dismiss();
+        dialog.dismiss();
     }
+
     private void initData() {
         FirebaseDatabase.getInstance().getReference("Bills").addValueEventListener(new ValueEventListener() {
             @Override
@@ -84,7 +78,7 @@ public class OrderActivity extends AppCompatActivity {
                 for (DataSnapshot item:snapshot.getChildren()) {
                     Bill tmp=item.getValue(Bill.class);
                     if (tmp.getRecipientId().equalsIgnoreCase(userId)) {
-
+                        //Dòng dưới là test sản phẩm
                         if (!tmp.getOrderStatus().equalsIgnoreCase("Completed")) {
                             dsCurrentOrder.add(tmp);
                         } else
