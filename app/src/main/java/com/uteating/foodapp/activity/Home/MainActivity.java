@@ -1,10 +1,10 @@
-package com.uteating.foodapp.activity;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.uteating.foodapp.activity.Home;
 
 import android.os.Bundle;
 
-import com.uteating.foodapp.R;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.fooddeliveryapplication.R;
 
 public class MainActivity extends AppCompatActivity {
 
