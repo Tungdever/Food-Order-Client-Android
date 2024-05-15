@@ -10,46 +10,93 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.uteating.foodapp.R;
 import com.uteating.foodapp.activity.order.OrderActivity;
 import com.uteating.foodapp.activity.order.OrderDetailActivity;
+import com.uteating.foodapp.custom.CustomAlertDialog;
+import com.uteating.foodapp.custom.SuccessfulToast;
+import com.uteating.foodapp.databinding.ItemOrderLayoutBinding;
 import com.uteating.foodapp.databinding.ItemOrderRowBinding;
+import com.uteating.foodapp.helper.FirebaseStatusOrderHelper;
 import com.uteating.foodapp.model.Bill;
+import com.uteating.foodapp.model.BillInfo;
 import com.uteating.foodapp.model.CurrencyFormatter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class OrderAdapter extends RecyclerView.Adapter {
     private Context context;
-    private ArrayList<Bill> listOrder;
+    private ArrayList<Bill> dsOrder;
     private int type;
     private String userId;
 
-    public OrderAdapter(Context context, ArrayList<Bill> listOrder, int type, String userId) {
+    public OrderAdapter(Context context, ArrayList<Bill> dsOrder, int type, String id) {
         this.context = context;
-        this.listOrder = listOrder;
+        this.dsOrder = dsOrder;
         this.type = type;
-        this.userId = userId;
+        this.userId = id;
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(ItemOrderRowBinding.inflate(LayoutInflater.from(context),parent,false));
+        return new ViewHolder(ItemOrderLayoutBinding.inflate(LayoutInflater.from(context),parent,false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        Bill tmp = listOrder.get(position);
+        Bill tmp = dsOrder.get(position);
         ViewHolder viewHolder = (ViewHolder) holder;
-        if (type == OrderActivity.CURRENT_ORDER){
+        if (type == OrderActivity.CURRENT_ORDER) {
             viewHolder.binding.btnSee.setText("Received");
             viewHolder.binding.btnSee.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    //new CustomAlertDialog(context,"Do you want to confirm this order?");
+                public void onClick(View view) {
+                    new CustomAlertDialog(context,"Do you want to confirm this order?");
+                    CustomAlertDialog.binding.btnYes.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            new FirebaseStatusOrderHelper().setShippingToCompleted(tmp.getBillId(), new FirebaseStatusOrderHelper.DataStatus() {
+                                @Override
+                                public void DataIsLoaded(List<Bill> bills, boolean isExistingBill) {
+
+                                }
+
+                                @Override
+                                public void DataIsInserted() {
+
+                                }
+
+                                @Override
+                                public void DataIsUpdated() {
+                                    new SuccessfulToast(context, "Your order has been changed to completed state!").showToast();
+                                }
+
+                                @Override
+                                public void DataIsDeleted() {
+
+                                }
+                            });
+                            CustomAlertDialog.alertDialog.dismiss();
+                        }
+                    });
+                    CustomAlertDialog.binding.btnNo.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            CustomAlertDialog.alertDialog.dismiss();
+                        }
+                    });
+                    CustomAlertDialog.showAlertDialog();
+
                 }
             });
+
         }
         else {
             viewHolder.binding.txtStatus.setTextColor(Color.parseColor("#48DC7D"));
@@ -72,6 +119,7 @@ public class OrderAdapter extends RecyclerView.Adapter {
                 }
             });
         }
+
         viewHolder.binding.txtId.setText(tmp.getBillId()+"");
         viewHolder.binding.txtDate.setText(tmp.getOrderDate()+"");
         viewHolder.binding.txtStatus.setText(tmp.getOrderStatus());
@@ -85,16 +133,47 @@ public class OrderAdapter extends RecyclerView.Adapter {
                 context.startActivity(intent);
             }
         });
+        FirebaseDatabase.getInstance().getReference("BillInfos").child(tmp.getBillId()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                //Tạo một BillInfos để lấy ảnh
+                BillInfo tmp= new BillInfo();
+                for (DataSnapshot item: snapshot.getChildren()) {
+                    tmp=item.getValue(BillInfo.class);
+                    break;
+                }
+                FirebaseDatabase.getInstance().getReference("Products").child(tmp.getProductId()).child("productImage1").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Glide.with(context)
+                                .load(snapshot.getValue(String.class))
+                                .placeholder(R.drawable.default_image)
+                                .into(viewHolder.binding.imgFood);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return listOrder == null ? 0 : listOrder.size();
+        return dsOrder == null ? 0 : dsOrder.size();
     }
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final ItemOrderRowBinding binding;
 
-        public ViewHolder(@NonNull ItemOrderRowBinding binding) {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        private final ItemOrderLayoutBinding binding;
+
+        public ViewHolder(@NonNull ItemOrderLayoutBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }

@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.uteating.foodapp.databinding.LayoutSuccessfulToastBinding;
 
+
 public class SuccessfulToast {
     private static LayoutSuccessfulToastBinding binding;
     private static Toast toast;
