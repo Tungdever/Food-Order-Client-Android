@@ -7,6 +7,12 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.uteating.foodapp.custom.CustomMessageBox.FailToast;
+import com.uteating.foodapp.custom.CustomMessageBox.SuccessfulToast;
+import com.uteating.foodapp.databinding.ActivityForgotBinding;
 
 
 public class ForgotActivity extends AppCompatActivity {

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 
+import com.uteating.foodapp.R;
+import com.uteating.foodapp.databinding.LayoutAlertDialogBinding;
 
 
 public class CustomAlertDialog {

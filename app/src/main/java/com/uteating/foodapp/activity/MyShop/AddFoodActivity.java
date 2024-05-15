@@ -19,6 +19,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.uteating.foodapp.R;
+import com.uteating.foodapp.custom.CustomMessageBox.FailToast;
+import com.uteating.foodapp.custom.CustomMessageBox.SuccessfulToast;
+import com.uteating.foodapp.databinding.ActivityAddFoodBinding;
+import com.uteating.foodapp.dialog.UploadDialog;
+import com.uteating.foodapp.model.Product;
 
 
 public class AddFoodActivity extends AppCompatActivity {

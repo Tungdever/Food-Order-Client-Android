@@ -1,2 +1,3 @@
-package com.uteating.foodapp.adapter;public class ProductInfoImageAdapter {
+package com.uteating.foodapp.adapter;
+public class ProductInfoImageAdapter {
 }

@@ -1,2 +1,4 @@
-package com.uteating.foodapp.model;public class Cart {
+package com.uteating.foodapp.model;
+public class Cart {
+
 }

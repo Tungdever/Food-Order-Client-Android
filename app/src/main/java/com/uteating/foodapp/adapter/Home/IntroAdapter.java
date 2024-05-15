@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.uteating.foodapp.databinding.ItemIntroBinding;
 
 import java.util.ArrayList;
 

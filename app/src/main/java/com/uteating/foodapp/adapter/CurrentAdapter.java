@@ -8,6 +8,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.uteating.foodapp.databinding.ItemInfoCurrentProductBinding;
+import com.uteating.foodapp.model.InfoCurrentProduct;
+
 import java.util.List;
 
 public class CurrentAdapter extends RecyclerView.Adapter<CurrentAdapter.CurrentViewHolder> {

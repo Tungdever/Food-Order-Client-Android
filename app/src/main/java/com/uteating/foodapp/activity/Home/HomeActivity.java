@@ -30,8 +30,31 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 
+import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.R;
+import com.uteating.foodapp.activity.MyShop.MyShopActivity;
+import com.uteating.foodapp.activity.ProductInfoActivity;
+import com.uteating.foodapp.activity.order.OrderActivity;
+import com.uteating.foodapp.activity.order.OrderDetailActivity;
+import com.uteating.foodapp.custom.CustomMessageBox.CustomAlertDialog;
+import com.uteating.foodapp.custom.CustomMessageBox.SuccessfulToast;
+import com.uteating.foodapp.databinding.ActivityHomeBinding;
+import com.uteating.foodapp.fragment.Home.FavoriteFragment;
+import com.uteating.foodapp.fragment.Home.HomeFragment;
+import com.uteating.foodapp.helper.FirebaseNotificationHelper;
+import com.uteating.foodapp.helper.FirebaseProductInfoHelper;
+import com.uteating.foodapp.model.Bill;
+import com.uteating.foodapp.model.Cart;
+import com.uteating.foodapp.model.Notification;
+import com.uteating.foodapp.model.Product;
+import com.uteating.foodapp.model.User;
 
 
 import java.util.List;

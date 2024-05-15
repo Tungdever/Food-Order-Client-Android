@@ -10,6 +10,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.R;
+import com.uteating.foodapp.activity.MyShop.MyShopActivity;
+import com.uteating.foodapp.activity.order.OrderActivity;
+import com.uteating.foodapp.databinding.ActivityProfileBinding;
+import com.uteating.foodapp.model.User;
 
 
 public class ProfileActivity extends AppCompatActivity {

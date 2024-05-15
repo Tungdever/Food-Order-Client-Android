@@ -11,6 +11,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 
+import com.uteating.foodapp.adapter.Home.FavouriteFoodAdapter;
+import com.uteating.foodapp.databinding.FragmentFavoriteBinding;
+import com.uteating.foodapp.helper.FirebaseFavouriteUserHelper;
+import com.uteating.foodapp.model.Product;
 
 import java.util.ArrayList;
 
@@ -39,7 +43,7 @@ public class FavoriteFragment extends Fragment {
     {
         new FirebaseFavouriteUserHelper().readFavouriteList(userId, new FirebaseFavouriteUserHelper.DataStatus() {
             @Override
-            public void DataIsLoaded(ArrayList<Product> favouriteProducts,ArrayList<String> keys) {
+            public void DataIsLoaded(ArrayList<Product> favouriteProducts, ArrayList<String> keys) {
                 StaggeredGridLayoutManager layoutManager=new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
                 binding.recFavouriteFood.setLayoutManager(layoutManager);
                 binding.recFavouriteFood.setHasFixedSize(true);

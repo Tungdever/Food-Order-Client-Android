@@ -12,7 +12,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+import com.uteating.foodapp.custom.CustomMessageBox.FailToast;
+import com.uteating.foodapp.custom.CustomMessageBox.SuccessfulToast;
+import com.uteating.foodapp.databinding.FragmentSignUpBinding;
+import com.uteating.foodapp.dialog.LoadingDialog;
+import com.uteating.foodapp.model.Cart;
+import com.uteating.foodapp.model.User;
 
 
 public class SignUpFragment extends Fragment {

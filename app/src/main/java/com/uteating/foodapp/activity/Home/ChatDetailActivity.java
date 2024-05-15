@@ -16,6 +16,8 @@ import com.bumptech.glide.Glide;
 DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.databinding.ActivityChatDetailBinding;
+import com.uteating.foodapp.model.Message;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -12,6 +12,20 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.R;
+import com.uteating.foodapp.activity.Home.ChatDetailActivity;
+import com.uteating.foodapp.activity.ProductInfoActivity;
+import com.uteating.foodapp.activity.order.OrderDetailActivity;
+import com.uteating.foodapp.databinding.ItemNotificationBinding;
+import com.uteating.foodapp.helper.FirebaseNotificationHelper;
+import com.uteating.foodapp.helper.FirebaseProductInfoHelper;
+import com.uteating.foodapp.model.Bill;
+import com.uteating.foodapp.model.Notification;
+import com.uteating.foodapp.model.Product;
 
 
 import java.util.List;

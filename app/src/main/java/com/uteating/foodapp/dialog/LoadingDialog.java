@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.Window;
 
+import com.uteating.foodapp.R;
 
 
 public class LoadingDialog {

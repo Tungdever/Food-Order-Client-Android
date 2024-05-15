@@ -11,6 +11,10 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.auth.FirebaseAuth;
+import com.uteating.foodapp.R;
+import com.uteating.foodapp.adapter.Home.IntroAdapter;
+import com.uteating.foodapp.databinding.ActivityIntroBinding;
 
 
 import java.util.ArrayList;
