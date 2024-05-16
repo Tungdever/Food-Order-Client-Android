@@ -11,7 +11,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.R;
+import com.uteating.foodapp.activity.Home.ForgotActivity;
+import com.uteating.foodapp.activity.Home.HomeActivity;
+import com.uteating.foodapp.custom.CustomMessageBox.FailToast;
+import com.uteating.foodapp.custom.CustomMessageBox.SuccessfulToast;
+import com.uteating.foodapp.databinding.FragmentLoginBinding;
 
 
 public class LoginFragment extends Fragment {

@@ -20,6 +20,7 @@ import com.uteating.foodapp.R;
 import com.uteating.foodapp.activity.Home.ChatDetailActivity;
 import com.uteating.foodapp.activity.ProductInfoActivity;
 import com.uteating.foodapp.activity.order.OrderDetailActivity;
+import com.uteating.foodapp.activity.orderSellerManagement.DeliveryManagementActivity;
 import com.uteating.foodapp.databinding.ItemNotificationBinding;
 import com.uteating.foodapp.helper.FirebaseNotificationHelper;
 import com.uteating.foodapp.helper.FirebaseProductInfoHelper;

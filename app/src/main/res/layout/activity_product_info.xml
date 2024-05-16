@@ -90,7 +90,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:scrollbars="vertical"
-            tools:context=".Activities.ProductInformation.ProductInfoActivity">
+            tools:context=".activity.ProductInformation.ProductInfoActivity">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/constraintLayout2"

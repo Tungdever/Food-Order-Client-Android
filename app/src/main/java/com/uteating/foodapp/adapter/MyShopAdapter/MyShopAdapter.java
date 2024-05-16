@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.chauthai.swipereveallayout.ViewBinderHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.FirebaseDatabase;
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 
 public class MyShopAdapter extends RecyclerView.Adapter {
     private ArrayList<Product> ds;
-    private ViewBinderHelper viewBinderHelper=new ViewBinderHelper();
+    private ViewBinderHelper viewBinderHelper= new ViewBinderHelper();
     private Context context;
     private String userId;
 

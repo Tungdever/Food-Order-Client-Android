@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.orderSellerManagement.DeliveryManagementActivity">
+    android:background="#F5F5F8"
+    tools:context=".activity.OrderSellerManagement.DeliveryManagementActivity">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout4"
         android:layout_width="match_parent"
@@ -52,7 +54,10 @@
                 android:layout_height="wrap_content"
                 android:text="Confirm" />
 
-
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Shipping" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="match_parent"

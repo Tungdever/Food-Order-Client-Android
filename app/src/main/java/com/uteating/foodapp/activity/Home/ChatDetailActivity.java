@@ -13,11 +13,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-DatabaseReference;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.R;
+import com.uteating.foodapp.adapter.Home.ChatDetailAdapter;
 import com.uteating.foodapp.databinding.ActivityChatDetailBinding;
+import com.uteating.foodapp.dialog.LoadingDialog;
+import com.uteating.foodapp.helper.FirebaseNotificationHelper;
 import com.uteating.foodapp.model.Message;
+import com.uteating.foodapp.model.Notification;
+import com.uteating.foodapp.model.User;
 
 import java.util.ArrayList;
 import java.util.List;

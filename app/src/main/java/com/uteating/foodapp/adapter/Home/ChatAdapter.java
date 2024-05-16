@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.chauthai.swipereveallayout.ViewBinderHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.uteating.foodapp.R;
 import com.uteating.foodapp.activity.Home.ChatDetailActivity;

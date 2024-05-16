@@ -21,7 +21,7 @@ import com.uteating.foodapp.activity.order.OrderDetailActivity;
 import com.uteating.foodapp.custom.CustomAlertDialog;
 import com.uteating.foodapp.custom.SuccessfulToast;
 import com.uteating.foodapp.databinding.ItemOrderLayoutBinding;
-import com.uteating.foodapp.databinding.ItemOrderRowBinding;
+
 import com.uteating.foodapp.helper.FirebaseStatusOrderHelper;
 import com.uteating.foodapp.model.Bill;
 import com.uteating.foodapp.model.BillInfo;

@@ -1,7 +1,7 @@
 package com.uteating.foodapp.activity.Home;
 
 import android.os.Bundle;
-import android.os.Message;
+
 import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -22,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.uteating.foodapp.adapter.Home.ChatAdapter;
 import com.uteating.foodapp.databinding.ActivityChatBinding;
 import com.uteating.foodapp.model.ItemChatRoom;
+import com.uteating.foodapp.model.Message;
 import com.uteating.foodapp.model.User;
 
 import java.util.ArrayList;

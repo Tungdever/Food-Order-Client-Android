@@ -2,6 +2,7 @@ package com.uteating.foodapp.helper;
 
 import androidx.annotation.NonNull;
 
+
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -41,7 +42,7 @@ public class FirebaseStatusOrderHelper {
         mReferenceStatusOrder = mDatabase.getReference();
     }
 
-    public void readConfirmBills(String userId, final FirebaseStatusOrderHelper.DataStatus dataStatus)
+    public void readConfirmBills(String userId, final DataStatus dataStatus)
     {
         mReferenceStatusOrder.addValueEventListener(new ValueEventListener() {
             @Override
@@ -50,7 +51,7 @@ public class FirebaseStatusOrderHelper {
                 boolean isExistingBill = false;
                 for (DataSnapshot keyNode : snapshot.child("Bills").getChildren()) {
                     if (keyNode.child("senderId").getValue(String.class).equals(userId)
-                            &&  keyNode.child("orderStatus").getValue(String.class).equals("Confirm")) {
+                    &&  keyNode.child("orderStatus").getValue(String.class).equals("Confirm")) {
                         Bill bill = keyNode.getValue(Bill.class);
                         bills.add(bill);
                         isExistingBill = true;
@@ -68,7 +69,7 @@ public class FirebaseStatusOrderHelper {
             }
         });
     }
-    public void readShippingBills(String userId, final FirebaseStatusOrderHelper.DataStatus dataStatus)
+    public void readShippingBills(String userId, final DataStatus dataStatus)
     {
         mReferenceStatusOrder.addValueEventListener(new ValueEventListener() {
             @Override
@@ -97,7 +98,7 @@ public class FirebaseStatusOrderHelper {
             }
         });
     }
-    public void readCompletedBills(String userId,final FirebaseStatusOrderHelper.DataStatus dataStatus) {
+    public void readCompletedBills(String userId,final DataStatus dataStatus) {
         mReferenceStatusOrder.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -124,7 +125,7 @@ public class FirebaseStatusOrderHelper {
         });
     }
 
-    public void setConfirmToShipping(String billId,final FirebaseStatusOrderHelper.DataStatus dataStatus) {
+    public void setConfirmToShipping(String billId,final DataStatus dataStatus) {
         mReferenceStatusOrder.child("Bills").child(billId).child("orderStatus").setValue("Shipping")
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -135,7 +136,7 @@ public class FirebaseStatusOrderHelper {
                     }
                 });
     }
-    public void setShippingToCompleted(String billId,final FirebaseStatusOrderHelper.DataStatus dataStatus) {
+    public void setShippingToCompleted(String billId,final DataStatus dataStatus) {
         mReferenceStatusOrder.child("Bills").child(billId).child("orderStatus").setValue("Completed")
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -40,7 +41,7 @@ public class FirebaseNotificationHelper {
         mReference = mDatabase.getReference();
     }
 
-    public void readNotification (String userId, final FirebaseNotificationHelper.DataStatus dataStatus)
+    public void readNotification (String userId, final DataStatus dataStatus)
     {
         mReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -88,7 +89,7 @@ public class FirebaseNotificationHelper {
             }
         });
     }
-    public void addNotification(String userId,Notification notification, final FirebaseNotificationHelper.DataStatus dataStatus) {
+    public void addNotification(String userId,Notification notification, final DataStatus dataStatus) {
         String key = mReference.child("Notification").child(userId).push().getKey();
         notification.setNotificationId(key);
         mReference.child("Notification").child(userId).child(key).setValue(notification)
@@ -101,7 +102,7 @@ public class FirebaseNotificationHelper {
                     }
                 });
     }
-    public void updateNotification(String userId,Notification notification, final FirebaseNotificationHelper.DataStatus dataStatus) {
+    public void updateNotification(String userId,Notification notification, final DataStatus dataStatus) {
         mReference.child("Notification").child(userId).child(notification.getNotificationId()).setValue(notification)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

@@ -39,17 +39,22 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.uteating.foodapp.R;
+import com.uteating.foodapp.activity.Cart_PlaceOrder.CartActivity;
+import com.uteating.foodapp.activity.Cart_PlaceOrder.EmptyCartActivity;
 import com.uteating.foodapp.activity.MyShop.MyShopActivity;
 import com.uteating.foodapp.activity.ProductInfoActivity;
 import com.uteating.foodapp.activity.order.OrderActivity;
 import com.uteating.foodapp.activity.order.OrderDetailActivity;
+import com.uteating.foodapp.activity.orderSellerManagement.DeliveryManagementActivity;
 import com.uteating.foodapp.custom.CustomMessageBox.CustomAlertDialog;
 import com.uteating.foodapp.custom.CustomMessageBox.SuccessfulToast;
 import com.uteating.foodapp.databinding.ActivityHomeBinding;
 import com.uteating.foodapp.fragment.Home.FavoriteFragment;
 import com.uteating.foodapp.fragment.Home.HomeFragment;
+import com.uteating.foodapp.fragment.NotificationFragment;
 import com.uteating.foodapp.helper.FirebaseNotificationHelper;
 import com.uteating.foodapp.helper.FirebaseProductInfoHelper;
+import com.uteating.foodapp.helper.FirebaseUserInfoHelper;
 import com.uteating.foodapp.model.Bill;
 import com.uteating.foodapp.model.Cart;
 import com.uteating.foodapp.model.Notification;
@@ -107,6 +112,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         moveTaskToBack(true);
     }
 
@@ -125,56 +131,54 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         setCartNavigation();
         binding.navigationLeft.setNavigationItemSelectedListener(this);
     }
-    
+
     private void setCartNavigation()
     {
         binding.toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId())
-                {
-                    case R.id.message_menu:
-                        Intent intent=new Intent(HomeActivity.this,ChatActivity.class);
-                        intent.putExtra("userId",userId);
-                        startActivity(intent);
-                        break;
-                    case R.id.cart_menu:
-                        FirebaseDatabase.getInstance().getReference().child("Carts").addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                for (DataSnapshot ds : snapshot.getChildren()) {
-                                    Cart cart = ds.getValue(Cart.class);
-                                    if (cart.getUserId().equals(userId)) {
-                                        FirebaseDatabase.getInstance().getReference().child("CartInfos").child(cart.getCartId()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                if (snapshot.getChildrenCount() == 0) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.message_menu) {
+                    Intent intent = new Intent(HomeActivity.this, ChatActivity.class);
+                    intent.putExtra("userId", userId);
+                    startActivity(intent);
+                } else if (itemId == R.id.cart_menu) {
+                    FirebaseDatabase.getInstance().getReference().child("Carts").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot ds : snapshot.getChildren()) {
+                                Cart cart = ds.getValue(Cart.class);
+                                if (cart.getUserId().equals(userId)) {
+                                    FirebaseDatabase.getInstance().getReference().child("CartInfos").child(cart.getCartId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            if (snapshot.getChildrenCount() == 0) {
 
-                                                    startActivity(new Intent(HomeActivity.this, EmptyCartActivity.class));
-                                                    return;
-                                                }
-                                                else {
-                                                    Intent intent = new Intent(HomeActivity.this,CartActivity.class);
-                                                    intent.putExtra("userId",userId);
-                                                    startActivity(intent);
-                                                    return;
-                                                }
+                                                startActivity(new Intent(HomeActivity.this, EmptyCartActivity.class));
+                                                return;
+                                            } else {
+                                                Intent intent = new Intent(HomeActivity.this, CartActivity.class);
+                                                intent.putExtra("userId", userId);
+                                                startActivity(intent);
+                                                return;
                                             }
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
+                                        }
 
-                                            }
-                                        });
-                                    }
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                        }
+                                    });
                                 }
                             }
+                        }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                            }
-                        });
-                        return true;
+                        }
+                    });
+                    return true;
                 }
                 return true;
             }
@@ -295,42 +299,38 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.profileMenu:
-                Intent intent = new Intent(this,ProfileActivity.class);
-                intent.putExtra("userId",userId);
-                startActivity(intent);
-                break;
-            case R.id.orderMenu:
-                Intent intent1 = new Intent(this, OrderActivity.class);
-                intent1.putExtra("userId",userId);
-                startActivity(intent1);
-                break;
-            case R.id.myShopMenu:
-                Intent intent2 = new Intent(this, MyShopActivity.class);
-                intent2.putExtra("userId",userId);
-                startActivity(intent2);
-                break;
-            case R.id.logoutMenu:
-                new CustomAlertDialog(HomeActivity.this,"Do you want to logout?");
-                CustomAlertDialog.binding.btnYes.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        new SuccessfulToast(HomeActivity.this, "Logout successfully!").showToast();
-                        CustomAlertDialog.alertDialog.dismiss();
-                        FirebaseAuth.getInstance().signOut();
-                        startActivity(new Intent(HomeActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
-                        finish();
-                    }
-                });
-                CustomAlertDialog.binding.btnNo.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        CustomAlertDialog.alertDialog.dismiss();
-                    }
-                });
-                CustomAlertDialog.showAlertDialog();
-                break;
+        int itemId = item.getItemId();
+        if (itemId == R.id.profileMenu) {
+            Intent intent = new Intent(this, ProfileActivity.class);
+            intent.putExtra("userId", userId);
+            startActivity(intent);
+        } else if (itemId == R.id.orderMenu) {
+            Intent intent1 = new Intent(this, OrderActivity.class);
+            intent1.putExtra("userId", userId);
+            startActivity(intent1);
+        } else if (itemId == R.id.myShopMenu) {
+            Intent intent2 = new Intent(this, MyShopActivity.class);
+            intent2.putExtra("userId", userId);
+            startActivity(intent2);
+        } else if (itemId == R.id.logoutMenu) {
+            new CustomAlertDialog(HomeActivity.this, "Do you want to logout?");
+            CustomAlertDialog.binding.btnYes.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new SuccessfulToast(HomeActivity.this, "Logout successfully!").showToast();
+                    CustomAlertDialog.alertDialog.dismiss();
+                    FirebaseAuth.getInstance().signOut();
+                    startActivity(new Intent(HomeActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                    finish();
+                }
+            });
+            CustomAlertDialog.binding.btnNo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    CustomAlertDialog.alertDialog.dismiss();
+                }
+            });
+            CustomAlertDialog.showAlertDialog();
         }
         binding.drawLayoutHome.close();
         return true;

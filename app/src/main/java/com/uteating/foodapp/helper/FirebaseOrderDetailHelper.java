@@ -2,6 +2,7 @@ package com.uteating.foodapp.helper;
 
 import androidx.annotation.NonNull;
 
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,7 +39,7 @@ public class FirebaseOrderDetailHelper {
         mReferenceStatusOrder = mDatabase.getReference();
     }
 
-    public void readOrderDetail(String addressId,String userId,String billId,final FirebaseOrderDetailHelper.DataStatus dataStatus )
+    public void readOrderDetail(String addressId,String userId,String billId,final DataStatus dataStatus )
     {
         mReferenceStatusOrder.addValueEventListener(new ValueEventListener() {
             @Override
@@ -61,7 +62,7 @@ public class FirebaseOrderDetailHelper {
         });
     }
 
-    public void readProductInfo(String productId, final FirebaseOrderDetailHelper.DataStatus2 dataStatus)
+    public void readProductInfo(String productId, final DataStatus2 dataStatus)
     {
         mReferenceStatusOrder.addValueEventListener(new ValueEventListener() {
             @Override
