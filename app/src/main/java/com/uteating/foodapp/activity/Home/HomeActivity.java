@@ -42,7 +42,7 @@ import com.uteating.foodapp.R;
 import com.uteating.foodapp.activity.Cart_PlaceOrder.CartActivity;
 import com.uteating.foodapp.activity.Cart_PlaceOrder.EmptyCartActivity;
 import com.uteating.foodapp.activity.MyShop.MyShopActivity;
-import com.uteating.foodapp.activity.ProductInfoActivity;
+import com.uteating.foodapp.activity.ProductInformation.ProductInfoActivity;
 import com.uteating.foodapp.activity.order.OrderActivity;
 import com.uteating.foodapp.activity.order.OrderDetailActivity;
 import com.uteating.foodapp.activity.orderSellerManagement.DeliveryManagementActivity;

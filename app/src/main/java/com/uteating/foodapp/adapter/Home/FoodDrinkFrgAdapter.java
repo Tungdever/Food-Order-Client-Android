@@ -14,14 +14,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.uteating.foodapp.activity.ProductInfoActivity;
+import com.uteating.foodapp.activity.ProductInformation.ProductInfoActivity;
 import com.uteating.foodapp.databinding.ItemHomeBinding;
 import com.uteating.foodapp.databinding.ItemProgressbarBinding;
 import com.uteating.foodapp.model.Product;
 
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class FoodDrinkFrgAdapter extends RecyclerView.Adapter {
@@ -29,12 +29,12 @@ public class FoodDrinkFrgAdapter extends RecyclerView.Adapter {
     private final int VIEW_TYPE_LOADING = 1;
 
     private final NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-    private final ArrayList<Product> ds;
+    private final List<Product> ds;
     private final String userId;
     private String userName;
     private final Context mContext;
 
-    public FoodDrinkFrgAdapter(ArrayList<Product> ds, String id, Context context)
+    public FoodDrinkFrgAdapter(List<Product> ds, String id, Context context)
     {
         mContext = context;
         this.ds = ds;

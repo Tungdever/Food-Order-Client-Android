@@ -19,7 +19,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.FirebaseDatabase;
 import com.uteating.foodapp.R;
 import com.uteating.foodapp.activity.MyShop.AddFoodActivity;
-import com.uteating.foodapp.activity.ProductInfoActivity;
+import com.uteating.foodapp.activity.ProductInformation.ProductInfoActivity;
 import com.uteating.foodapp.custom.CustomMessageBox.CustomAlertDialog;
 import com.uteating.foodapp.custom.CustomMessageBox.FailToast;
 import com.uteating.foodapp.custom.CustomMessageBox.SuccessfulToast;

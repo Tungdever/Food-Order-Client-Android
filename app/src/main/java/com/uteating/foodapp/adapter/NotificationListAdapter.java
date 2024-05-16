@@ -18,7 +18,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.uteating.foodapp.R;
 import com.uteating.foodapp.activity.Home.ChatDetailActivity;
-import com.uteating.foodapp.activity.ProductInfoActivity;
+import com.uteating.foodapp.activity.ProductInformation.ProductInfoActivity;
 import com.uteating.foodapp.activity.order.OrderDetailActivity;
 import com.uteating.foodapp.activity.orderSellerManagement.DeliveryManagementActivity;
 import com.uteating.foodapp.databinding.ItemNotificationBinding;

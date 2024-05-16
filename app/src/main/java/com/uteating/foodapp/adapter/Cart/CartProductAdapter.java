@@ -23,7 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.uteating.foodapp.Interface.IAdapterItemListener;
 import com.uteating.foodapp.R;
-import com.uteating.foodapp.activity.ProductInfoActivity;
+import com.uteating.foodapp.activity.ProductInformation.ProductInfoActivity;
 import com.uteating.foodapp.custom.CustomMessageBox.CustomAlertDialog;
 import com.uteating.foodapp.custom.CustomMessageBox.FailToast;
 import com.uteating.foodapp.custom.CustomMessageBox.SuccessfulToast;

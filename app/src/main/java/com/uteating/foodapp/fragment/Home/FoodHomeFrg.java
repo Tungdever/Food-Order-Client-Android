@@ -19,23 +19,32 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.Interface.APIService;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.adapter.Home.FoodDrinkFrgAdapter;
 import com.uteating.foodapp.databinding.FragmentFoodHomeFrgBinding;
 import com.uteating.foodapp.model.Product;
 
+
 import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class FoodHomeFrg extends Fragment {
     private FragmentFoodHomeFrgBinding binding;
-    private ArrayList<Product> dsCurrentFood;
-    private ArrayList<Product> totalFood;
+    private List<Product> dsCurrentFood;
+    private List<Product> totalFood;
     private FoodDrinkFrgAdapter adapter;
     private String userId;
     private boolean isLoading = false;
     private int itemCount = 2;
     private boolean isScrolling = true;
     private String lastKey = null;
+    APIService apiService;
 
     private int position = 0;
 
@@ -76,29 +85,27 @@ public class FoodHomeFrg extends Fragment {
 
     private void initData() {
         dsCurrentFood = new ArrayList<>();
-        FirebaseDatabase.getInstance().getReference("Products").addListenerForSingleValueEvent(new ValueEventListener() {
+        apiService =  RetrofitClient.getRetrofit().create(APIService.class);
+        apiService.getProducts().enqueue(new Callback<List<Product>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                totalFood = new ArrayList<>();
-                for (DataSnapshot ds : snapshot.getChildren()) {
-                    Product product = ds.getValue(Product.class);
-                    if (product != null && !product.getState().equals("deleted")
-                            && product.getProductType().equalsIgnoreCase("Food")
-                            && !product.getPublisherId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                        totalFood.add(product);
+            public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
+                if(response.isSuccessful()) {
+                    totalFood = response.body();
+                    int i = 0;
+                    while (position < totalFood.size() && i < itemCount) {
+                        dsCurrentFood.add(totalFood.get(position));
+                        position++;
+                        i++;
                     }
+                    adapter.notifyDataSetChanged();
                 }
-                int i = 0;
-                while (position < totalFood.size() && i < itemCount) {
-                    dsCurrentFood.add(totalFood.get(position));
-                    position++;
-                    i++;
-                }
-                adapter.notifyDataSetChanged();
-            }
+                else {
 
+                }
+            }
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(Call<List<Product>> call, Throwable t) {
+
             }
         });
     }
