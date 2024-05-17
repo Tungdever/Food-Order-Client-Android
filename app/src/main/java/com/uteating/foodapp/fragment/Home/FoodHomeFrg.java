@@ -47,6 +47,8 @@ public class FoodHomeFrg extends Fragment {
     APIService apiService;
 
     private int position = 0;
+    public FoodHomeFrg(){};
+
 
     public FoodHomeFrg(String id) {
         userId = id;
@@ -86,7 +88,7 @@ public class FoodHomeFrg extends Fragment {
     private void initData() {
         dsCurrentFood = new ArrayList<>();
         apiService =  RetrofitClient.getRetrofit().create(APIService.class);
-        apiService.getProducts().enqueue(new Callback<List<Product>>() {
+        apiService.getProductsByType("food").enqueue(new Callback<List<Product>>() {
             @Override
             public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
                 if(response.isSuccessful()) {

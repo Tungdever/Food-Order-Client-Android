@@ -121,7 +121,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         getWindow().setNavigationBarColor(Color.parseColor("#E8584D"));
         binding.navigationLeft.bringToFront();
         createActionBar();
-
         layoutMain=binding.layoutMain;
         getSupportFragmentManager()
                 .beginTransaction()

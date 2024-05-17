@@ -44,6 +44,4 @@ public class HistoryProduct {
     public void setPriceHistoryProduct(String priceHistoryProduct) {
         PriceHistoryProduct = priceHistoryProduct;
     }
-
-
 }
