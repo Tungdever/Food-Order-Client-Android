@@ -21,8 +21,8 @@
             android:layout_gravity="top|center"
             android:elevation="1dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/tmp2"
-            app:shapeAppearanceOverlay="@style/Circle_Image"/>
+            android:src="@drawable/tmp2"/>
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="160dp"
