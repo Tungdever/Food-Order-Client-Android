@@ -18,25 +18,30 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.uteating.foodapp.R;
 import com.uteating.foodapp.activity.ProductInformation.ProductInfoActivity;
+
+
 import com.uteating.foodapp.databinding.ItemHomeFindLayoutBinding;
+import com.uteating.foodapp.databinding.ItemProgressbarBinding;
 import com.uteating.foodapp.model.Product;
 
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
-public class ResultSearchAdapter extends RecyclerView.Adapter implements Filterable {
+public class ResultSearchAdapter extends RecyclerView.Adapter {
+    private final int VIEW_TYPE_ITEM = 0;
+    private final int VIEW_TYPE_LOADING = 1;
     private NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-    private ArrayList<Product> ds;
-    private ArrayList<Product> dsAll;
+    private List<Product> ds;
     private String userId;
     private String userName;
     private Context mContext;
-    public ResultSearchAdapter(ArrayList<Product> ds, String id,Context context) {
+
+    public ResultSearchAdapter(List<Product> ds, String id, Context context) {
         this.mContext = context;
-        this.dsAll=ds;
-        this.ds=ds;
+        this.ds = ds;
         this.userId = id;
         FirebaseDatabase.getInstance().getReference().child("Users").child(userId).addValueEventListener(new ValueEventListener() {
             @Override
@@ -54,28 +59,66 @@ public class ResultSearchAdapter extends RecyclerView.Adapter implements Filtera
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(ItemHomeFindLayoutBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
+        if (viewType == VIEW_TYPE_ITEM) {
+            ItemHomeFindLayoutBinding binding = ItemHomeFindLayoutBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+            return new ResultSearchAdapter.ItemViewHolder(binding);
+        } else {
+            ItemProgressbarBinding binding = ItemProgressbarBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+            return new ResultSearchAdapter.LoadingViewHolder(binding);
+        }
+    }
+
+    public static class ItemViewHolder extends RecyclerView.ViewHolder {
+        private final ItemHomeFindLayoutBinding binding;
+
+        public ItemViewHolder(@NonNull ItemHomeFindLayoutBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+    }
+
+    private class LoadingViewHolder extends RecyclerView.ViewHolder {
+        private final ItemProgressbarBinding binding;
+
+        public LoadingViewHolder(@NonNull ItemProgressbarBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof ResultSearchAdapter.ItemViewHolder) {
+            populateItemRows((ResultSearchAdapter.ItemViewHolder) holder, position);
+        } else if (holder instanceof ResultSearchAdapter.LoadingViewHolder) {
+            showLoadingView((ResultSearchAdapter.LoadingViewHolder) holder, position);
+        }
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return ds == null ? 0 : ds.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        private final ItemHomeFindLayoutBinding binding;
+
+        public ViewHolder(@NonNull ItemHomeFindLayoutBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+    }
+
+    private void showLoadingView(ResultSearchAdapter.LoadingViewHolder viewHolder, int position) {
+        //ProgressBar would be displayed
+        viewHolder.binding.progressBar.setVisibility(View.VISIBLE);
+
+    }
+
+    private void populateItemRows(ResultSearchAdapter.ItemViewHolder viewHolder, int position) {
         Product item = ds.get(position);
         if (item != null) {
-            ViewHolder viewHolder=(ViewHolder) holder;
-
-            if (position==1) {
-                RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) viewHolder.itemView.getLayoutParams();
-                int margin = 120;
-                layoutParams.setMargins(0, margin, 0, 0);
-                holder.itemView.setLayoutParams(layoutParams);
-            }
-            else if (position== 0) {
-                RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) viewHolder.itemView.getLayoutParams();
-                int margin = 50;
-                layoutParams.setMargins(0, margin, 0, 0);
-                holder.itemView.setLayoutParams(layoutParams);
-            }
-
             Glide.with(viewHolder.binding.getRoot())
                     .load(item.getProductImage1())
                     .placeholder(R.drawable.image_default)
@@ -84,9 +127,9 @@ public class ResultSearchAdapter extends RecyclerView.Adapter implements Filtera
             viewHolder.binding.txtFoodName.setText(item.getProductName());
             double ratingStar = (double) Math.round(item.getRatingStar() * 10) / 10;
             viewHolder.binding.txtRating.setText(ratingStar + "/5.0");
-            if (item.getRatingStar()>=5) {
+            if (item.getRatingStar() >= 5) {
                 viewHolder.binding.imgRate.setImageResource(R.drawable.rating_star_filled);
-            } else if (item.getRatingStar()>=3 && item.getRatingStar()<5) {
+            } else if (item.getRatingStar() >= 3 && item.getRatingStar() < 5) {
                 viewHolder.binding.imgRate.setImageResource(R.drawable.rating_star_half);
             } else {
                 viewHolder.binding.imgRate.setImageResource(R.drawable.rating_star_empty);
@@ -117,51 +160,6 @@ public class ResultSearchAdapter extends RecyclerView.Adapter implements Filtera
                     mContext.startActivity(intent);
                 }
             });
-        }
-    }
-
-    @Override
-    public int getItemCount() {
-        return ds == null ? 0 : ds.size();
-    }
-
-    @Override
-    public Filter getFilter() {
-        return new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence charSequence) {
-                String key=charSequence.toString();
-                if (key.isEmpty())
-                    ds=dsAll;
-                else {
-                    ArrayList<Product> tmp=new ArrayList<>();
-                    key=key.toLowerCase();
-                    for (Product item: dsAll) {
-                        if (item.getProductName().toLowerCase().contains(key)) {
-                            tmp.add(item);
-                        }
-                    }
-                    ds=tmp;
-                }
-                FilterResults results=new FilterResults();
-                results.values=ds;
-                return results;
-            }
-
-            @Override
-            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                ds = (ArrayList<Product>) filterResults.values;
-                notifyDataSetChanged();
-            }
-        };
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final ItemHomeFindLayoutBinding binding;
-
-        public ViewHolder(@NonNull ItemHomeFindLayoutBinding binding) {
-            super(binding.getRoot());
-            this.binding = binding;
         }
     }
 }

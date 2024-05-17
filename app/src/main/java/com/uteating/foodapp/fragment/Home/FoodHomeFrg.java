@@ -41,7 +41,7 @@ public class FoodHomeFrg extends Fragment {
     private FoodDrinkFrgAdapter adapter;
     private String userId;
     private boolean isLoading = false;
-    private int itemCount = 2;
+    private int itemCount = 20;
     private boolean isScrolling = true;
     private String lastKey = null;
     APIService apiService;
@@ -129,7 +129,7 @@ public class FoodHomeFrg extends Fragment {
                     adapter.notifyDataSetChanged();
                     isLoading = false;
                 }
-            }, 2000);
+            }, 1000);
         } else {
             isScrolling = false;
             adapter.notifyDataSetChanged();

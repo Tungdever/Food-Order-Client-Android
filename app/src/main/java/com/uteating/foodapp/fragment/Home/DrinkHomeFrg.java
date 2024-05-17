@@ -41,7 +41,7 @@ public class DrinkHomeFrg extends Fragment {
     private FoodDrinkFrgAdapter adapter;
     private String userId;
     private boolean isLoading = false;
-    private int itemCount = 2;
+    private int itemCount = 20;
     private boolean isScrolling = true;
     private String lastKey = null;
     private int position = 0;
@@ -89,7 +89,7 @@ public class DrinkHomeFrg extends Fragment {
             public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
                 if(response.isSuccessful()) {
                     totalDrink = response.body();
-                    Log.d("size", String.valueOf(totalDrink.size()));
+
                     int i = 0;
                     while (position < totalDrink.size() && i < itemCount) {
                         dsCurrentDrink.add(totalDrink.get(position));
@@ -125,7 +125,7 @@ public class DrinkHomeFrg extends Fragment {
                     adapter.notifyDataSetChanged();
                     isLoading = false;
                 }
-            }, 2000);
+            }, 1000);
         } else {
             isScrolling = false;
             adapter.notifyDataSetChanged();
