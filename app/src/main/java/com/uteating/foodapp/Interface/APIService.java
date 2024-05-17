@@ -21,4 +21,6 @@ public interface APIService {
     Call<List<Product>> getAllProducts();
     @GET("/api/products/filter")
     Call<List<Product>> getProductsByType(@Query("type") String type);
+    @GET("/api/products/search")
+    Call<List<Product>> searchProduct(@Query("keyword") String keyword);
 }
