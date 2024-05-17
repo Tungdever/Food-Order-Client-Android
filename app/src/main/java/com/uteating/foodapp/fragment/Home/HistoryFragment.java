@@ -9,8 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-
-
+import com.uteating.foodapp.databinding.FragmentHistoryBinding;
 
 
 public class HistoryFragment extends Fragment {

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:paddingTop="10dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".Activities.Home.ProfileActivity">
+    tools:context=".activity.Home.ProfileActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
@@ -82,34 +82,34 @@
             </androidx.cardview.widget.CardView>
 
             <TextView
+                android:id="@+id/user_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/user_avatar_container"
-                android:layout_marginTop="15dp"
                 android:layout_marginStart="20dp"
+                android:layout_marginTop="15dp"
+                android:layout_toEndOf="@id/user_avatar_container"
                 android:ellipsize="end"
-                android:textStyle="bold"
+                android:fontFamily="sans-serif-light"
                 android:lines="1"
                 android:maxLines="1"
-                android:text="Do Minh Nhat"
+                android:text="Nhom11"
                 android:textSize="28sp"
-                android:fontFamily="sans-serif-light"
-                android:id="@+id/user_name"/>
+                android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/user_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/user_name"
-                android:layout_toEndOf="@id/user_avatar_container"
-                android:layout_marginTop="5dp"
                 android:layout_marginStart="20dp"
-                android:maxLines="1"
-                android:lines="1"
+                android:layout_marginTop="5dp"
+                android:layout_toEndOf="@id/user_avatar_container"
                 android:ellipsize="end"
-                android:textStyle="italic"
-                android:text="21522415@gm.uit.edu.vn"
+                android:lines="1"
+                android:maxLines="1"
+                android:text="Email@gmail.com"
                 android:textSize="16sp"
-                android:id="@+id/user_email"/>
+                android:textStyle="italic" />
 
             <TextView
                 android:layout_width="wrap_content"

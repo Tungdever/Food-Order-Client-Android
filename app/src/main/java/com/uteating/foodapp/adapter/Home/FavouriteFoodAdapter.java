@@ -11,6 +11,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.R;
+import com.uteating.foodapp.activity.ProductInformation.ProductInfoActivity;
+import com.uteating.foodapp.databinding.ItemFavouriteProductBinding;
+import com.uteating.foodapp.model.Product;
 
 
 import java.text.NumberFormat;

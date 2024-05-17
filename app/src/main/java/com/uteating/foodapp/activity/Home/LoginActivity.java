@@ -9,6 +9,9 @@ import androidx.viewpager2.widget.ViewPager2;
 
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.uteating.foodapp.adapter.Home.LoginSignUpAdapter;
+import com.uteating.foodapp.databinding.ActivityLoginBinding;
 
 
 public class LoginActivity extends AppCompatActivity {

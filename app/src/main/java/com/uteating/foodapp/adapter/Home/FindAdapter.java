@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.uteating.foodapp.activity.Home.ResultSearchActivity;
+import com.uteating.foodapp.databinding.ItemSearchBinding;
 
 import java.util.ArrayList;
 

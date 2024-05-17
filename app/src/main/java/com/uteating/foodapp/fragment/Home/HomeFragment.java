@@ -13,6 +13,13 @@ import androidx.viewpager2.widget.ViewPager2;
 
 
 import com.google.android.material.tabs.TabLayout;
+import com.uteating.foodapp.R;
+import com.uteating.foodapp.activity.Home.FindActivity;
+import com.uteating.foodapp.adapter.ImagesViewPageAdapter;
+import com.uteating.foodapp.adapter.ViewPager2Adapter;
+import com.uteating.foodapp.databinding.FragmentHomeBinding;
+import com.uteating.foodapp.model.DepthPageTransformer;
+import com.uteating.foodapp.model.Images;
 
 import java.util.ArrayList;
 import java.util.List;

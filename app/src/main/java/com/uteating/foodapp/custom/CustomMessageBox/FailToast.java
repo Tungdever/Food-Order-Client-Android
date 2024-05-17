@@ -5,6 +5,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.widget.Toast;
 
+import com.uteating.foodapp.databinding.LayoutFailToastBinding;
 
 
 public class FailToast {

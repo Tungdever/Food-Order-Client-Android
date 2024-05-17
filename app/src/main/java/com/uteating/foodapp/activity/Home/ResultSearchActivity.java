@@ -12,6 +12,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.adapter.Home.ResultSearchAdapter;
+import com.uteating.foodapp.databinding.ActivityResultSearchBinding;
+import com.uteating.foodapp.model.Product;
 
 import java.util.ArrayList;
 

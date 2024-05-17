@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.uteating.foodapp.fragment.Home.LoginFragment;
+import com.uteating.foodapp.fragment.Home.SignUpFragment;
 
 
 public class LoginSignUpAdapter extends FragmentStateAdapter {

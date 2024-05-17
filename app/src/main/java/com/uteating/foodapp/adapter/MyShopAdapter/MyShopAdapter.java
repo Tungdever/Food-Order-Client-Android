@@ -13,13 +13,25 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.chauthai.swipereveallayout.ViewBinderHelper;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.FirebaseDatabase;
+import com.uteating.foodapp.R;
+import com.uteating.foodapp.activity.MyShop.AddFoodActivity;
+import com.uteating.foodapp.activity.ProductInformation.ProductInfoActivity;
+import com.uteating.foodapp.custom.CustomMessageBox.CustomAlertDialog;
+import com.uteating.foodapp.custom.CustomMessageBox.FailToast;
+import com.uteating.foodapp.custom.CustomMessageBox.SuccessfulToast;
+import com.uteating.foodapp.databinding.LayoutFoodItemBinding;
+import com.uteating.foodapp.model.Product;
 
 
 import java.util.ArrayList;
 
 public class MyShopAdapter extends RecyclerView.Adapter {
     private ArrayList<Product> ds;
-    private ViewBinderHelper viewBinderHelper=new ViewBinderHelper();
+    private ViewBinderHelper viewBinderHelper= new ViewBinderHelper();
     private Context context;
     private String userId;
 

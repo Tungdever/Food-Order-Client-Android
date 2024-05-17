@@ -10,6 +10,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.uteating.foodapp.R;
+import com.uteating.foodapp.databinding.ItemImagesBinding;
+import com.uteating.foodapp.model.Images;
 
 import java.util.List;
 

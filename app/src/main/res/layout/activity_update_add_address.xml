@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.Cart_PlaceOrder.UpdateAddAddressActivity">
+    tools:context=".activity.Cart_PlaceOrder.UpdateAddAddressActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"

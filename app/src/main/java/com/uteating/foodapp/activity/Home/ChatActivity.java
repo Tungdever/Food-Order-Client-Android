@@ -1,6 +1,7 @@
 package com.uteating.foodapp.activity.Home;
 
 import android.os.Bundle;
+
 import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -13,6 +14,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.adapter.Home.ChatAdapter;
+import com.uteating.foodapp.databinding.ActivityChatBinding;
+import com.uteating.foodapp.model.ItemChatRoom;
+import com.uteating.foodapp.model.Message;
+import com.uteating.foodapp.model.User;
 
 import java.util.ArrayList;
 
@@ -21,8 +32,8 @@ public class ChatActivity extends AppCompatActivity {
     private String userId;
     private DatabaseReference userReference;
     private MutableLiveData<ArrayList<String>> bunchOfReceiverId = new MutableLiveData<>();
-    private ArrayList<ItemChatRoom> bunchOfItemChatRoom=new ArrayList<>();
-    private MutableLiveData <ArrayList<ItemChatRoom>> bunchOfItemChatRoomLive=new MutableLiveData<>();
+    private ArrayList<ItemChatRoom> bunchOfItemChatRoom = new ArrayList<>();
+    private MutableLiveData<ArrayList<ItemChatRoom>> bunchOfItemChatRoomLive = new MutableLiveData<>();
     private DatabaseReference chatReference;
     private ValueEventListener chatListener;
     private ChatAdapter chatAdapter;
@@ -85,8 +96,8 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void initUI() {
-        chatAdapter=new ChatAdapter(ChatActivity.this,bunchOfItemChatRoom);
-        binding.recycleViewMessage.setLayoutManager(new LinearLayoutManager(ChatActivity.this, RecyclerView.VERTICAL,false));
+        chatAdapter = new ChatAdapter(ChatActivity.this, bunchOfItemChatRoom);
+        binding.recycleViewMessage.setLayoutManager(new LinearLayoutManager(ChatActivity.this, RecyclerView.VERTICAL, false));
         binding.recycleViewMessage.setAdapter(chatAdapter);
     }
 
@@ -101,36 +112,36 @@ public class ChatActivity extends AppCompatActivity {
 
     private void loadReceiver(ArrayList<String> receiverIds) {
         bunchOfItemChatRoom.clear();
-        for (int i=0;i<receiverIds.size();i++) {
-                    userReference.child(receiverIds.get(i)).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            includeGetItemChatFromReceiver(snapshot.getValue(User.class),receiverIds);
-                        }
+        for (int i = 0; i < receiverIds.size(); i++) {
+            userReference.child(receiverIds.get(i)).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    includeGetItemChatFromReceiver(snapshot.getValue(User.class), receiverIds);
+                }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
 
-                        }
-                    });
+                }
+            });
         }
 
     }
 
-    private void includeGetItemChatFromReceiver(User receiver,ArrayList<String> receiverIds) {
+    private void includeGetItemChatFromReceiver(User receiver, ArrayList<String> receiverIds) {
         chatReference.child(receiver.getUserId())
                 .orderByChild("timestamp").limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
-                            Message lastMessage=snapshot.getChildren().iterator().next().getValue(Message.class);
-                            ItemChatRoom itemChatRoom=new ItemChatRoom(receiver,lastMessage);
+                            Message lastMessage = snapshot.getChildren().iterator().next().getValue(Message.class);
+                            ItemChatRoom itemChatRoom = new ItemChatRoom(receiver, lastMessage);
                             bunchOfItemChatRoom.add(itemChatRoom);
-                            if (bunchOfItemChatRoom.size()==receiverIds.size()) {
+                            if (bunchOfItemChatRoom.size() == receiverIds.size()) {
                                 bunchOfItemChatRoomLive.postValue(bunchOfItemChatRoom);
                             }
                         } else {
-                            Toast.makeText(ChatActivity.this, "include",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ChatActivity.this, "include", Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -165,12 +176,12 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void createReference() {
-        chatReference= FirebaseDatabase.getInstance().getReference("Message").child(userId);
-        userReference=FirebaseDatabase.getInstance().getReference("Users");
+        chatReference = FirebaseDatabase.getInstance().getReference("Message").child(userId);
+        userReference = FirebaseDatabase.getInstance().getReference("Users");
     }
 
     private void loadReceiverId() {
-            chatReference.addValueEventListener(chatListener);
+        chatReference.addValueEventListener(chatListener);
     }
 
 }

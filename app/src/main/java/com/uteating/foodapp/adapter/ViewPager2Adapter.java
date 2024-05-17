@@ -6,6 +6,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.uteating.foodapp.fragment.Home.DrinkHomeFrg;
+import com.uteating.foodapp.fragment.Home.FoodHomeFrg;
 
 
 public class ViewPager2Adapter extends FragmentStateAdapter {

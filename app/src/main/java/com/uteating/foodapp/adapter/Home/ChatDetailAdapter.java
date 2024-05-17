@@ -9,6 +9,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.uteating.foodapp.databinding.ItemReceiveMessageBinding;
+import com.uteating.foodapp.databinding.ItemSendMessageBinding;
+import com.uteating.foodapp.model.Message;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

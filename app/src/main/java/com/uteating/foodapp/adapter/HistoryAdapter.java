@@ -8,6 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.uteating.foodapp.databinding.ItemHistoryProductBinding;
+import com.uteating.foodapp.model.HistoryProduct;
 
 import java.util.List;
 
