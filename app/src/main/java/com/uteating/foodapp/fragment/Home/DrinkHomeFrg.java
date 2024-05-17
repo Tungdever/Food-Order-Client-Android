@@ -20,16 +20,23 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.Interface.APIService;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.adapter.Home.FoodDrinkFrgAdapter;
 import com.uteating.foodapp.databinding.FragmentDrinkHomeFrgBinding;
 import com.uteating.foodapp.model.Product;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class DrinkHomeFrg extends Fragment {
-    private ArrayList<Product> dsCurrentDrink;
-    private ArrayList<Product> totalFood;
+    private List<Product> dsCurrentDrink;
+    private List<Product> totalDrink;
     private FragmentDrinkHomeFrgBinding binding;
     private FoodDrinkFrgAdapter adapter;
     private String userId;
@@ -38,6 +45,7 @@ public class DrinkHomeFrg extends Fragment {
     private boolean isScrolling = true;
     private String lastKey = null;
     private int position = 0;
+    APIService apiService;
 
     public DrinkHomeFrg(String id) {
         userId = id;
@@ -75,34 +83,33 @@ public class DrinkHomeFrg extends Fragment {
     private void initData() {
         Log.d("Data", "done");
         dsCurrentDrink = new ArrayList<>();
-        FirebaseDatabase.getInstance().getReference("Products").addListenerForSingleValueEvent(new ValueEventListener() {
+        apiService =  RetrofitClient.getRetrofit().create(APIService.class);
+        apiService.getProductsByType("drink").enqueue(new Callback<List<Product>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                totalFood = new ArrayList<>();
-                for (DataSnapshot ds : snapshot.getChildren()) {
-                    Product product = ds.getValue(Product.class);
-                    if (product != null && !product.getState().equals("deleted")
-                            && product.getProductType().equalsIgnoreCase("Drink")
-                            && !product.getPublisherId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                        totalFood.add(product);
+            public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
+                if(response.isSuccessful()) {
+                    totalDrink = response.body();
+                    Log.d("size", String.valueOf(totalDrink.size()));
+                    int i = 0;
+                    while (position < totalDrink.size() && i < itemCount) {
+                        dsCurrentDrink.add(totalDrink.get(position));
+                        position++;
+                        i++;
                     }
+                    adapter.notifyDataSetChanged();
                 }
-                int i = 0;
-                while (position < totalFood.size() && i < itemCount) {
-                    dsCurrentDrink.add(totalFood.get(position));
-                    position++;
-                    i++;
-                }
-                adapter.notifyDataSetChanged();
-            }
+                else {
 
+                }
+            }
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(Call<List<Product>> call, Throwable t) {
+
             }
         });
     }
     private void loadMore() {
-        if (position < totalFood.size()) {
+        if (position < totalDrink.size()) {
             dsCurrentDrink.add(null);
             adapter.notifyItemInserted(dsCurrentDrink.size() - 1);
             new Handler().postDelayed(new Runnable() {
@@ -110,8 +117,8 @@ public class DrinkHomeFrg extends Fragment {
                 public void run() {
                     dsCurrentDrink.remove(dsCurrentDrink.size() - 1);
                     int i = 0;
-                    while (position < totalFood.size() && i < itemCount) {
-                        dsCurrentDrink.add(totalFood.get(position));
+                    while (position < totalDrink.size() && i < itemCount) {
+                        dsCurrentDrink.add(totalDrink.get(position));
                         position++;
                         i++;
                     }
