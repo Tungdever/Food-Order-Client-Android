@@ -167,7 +167,7 @@
                     android:layout_width="351dp"
                     android:layout_height="25dp"
                     android:layout_marginStart="12dp"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="10dp"
                     android:orientation="horizontal"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -252,12 +252,16 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
-                app:layout_constraintVertical_bias="1.0"><![CDATA[
+                app:layout_constraintVertical_bias="0.0"><![CDATA[
 
 
 
 
                 />
+
+
+
+
 
 
 
@@ -282,9 +286,9 @@
                     android:id="@+id/txt1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
                     android:layout_marginTop="10dp"
                     android:text="Description"
-                    android:layout_marginStart="5dp"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -311,10 +315,10 @@
                     android:id="@+id/txtComment"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
                     android:layout_marginTop="24dp"
                     android:text="Comment"
                     android:textSize="16dp"
-                    android:layout_marginStart="5dp"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0"
