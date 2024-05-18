@@ -9,8 +9,8 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imgFood"
-        android:layout_width="220dp"
-        android:layout_height="220dp"
+        android:layout_width="420dp"
+        android:layout_height="390dp"
         android:layout_gravity="top|center"
         android:elevation="20dp"
         android:scaleType="centerCrop"
