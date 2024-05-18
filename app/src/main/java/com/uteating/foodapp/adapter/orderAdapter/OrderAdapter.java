@@ -62,6 +62,7 @@ public class OrderAdapter extends RecyclerView.Adapter {
                     CustomAlertDialog.binding.btnYes.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            //thay đổi trạng thái của một hóa đơn từ "Shipping" sang "Completed"
                             new FirebaseStatusOrderHelper().setShippingToCompleted(tmp.getBillId(), new FirebaseStatusOrderHelper.DataStatus() {
                                 @Override
                                 public void DataIsLoaded(List<Bill> bills, boolean isExistingBill) {
@@ -133,6 +134,7 @@ public class OrderAdapter extends RecyclerView.Adapter {
                 context.startActivity(intent);
             }
         });
+        //hiển thị hình ảnh sản phẩm liên quan đến một hóa đơn
         FirebaseDatabase.getInstance().getReference("BillInfos").child(tmp.getBillId()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -142,6 +144,7 @@ public class OrderAdapter extends RecyclerView.Adapter {
                     tmp=item.getValue(BillInfo.class);
                     break;
                 }
+                //Lấy thông tin sản phẩm và tải hình ảnh sản phẩm
                 FirebaseDatabase.getInstance().getReference("Products").child(tmp.getProductId()).child("productImage1").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {

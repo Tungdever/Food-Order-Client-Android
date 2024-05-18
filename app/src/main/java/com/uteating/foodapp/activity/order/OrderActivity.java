@@ -41,9 +41,7 @@ public class OrderActivity extends AppCompatActivity {
         userId = getIntent().getStringExtra("userId");
         dialog = new LoadingDialog(this);
         dialog.show();
-
         initData();
-
         binding.imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,7 +76,7 @@ public class OrderActivity extends AppCompatActivity {
                 for (DataSnapshot item:snapshot.getChildren()) {
                     Bill tmp=item.getValue(Bill.class);
                     if (tmp.getRecipientId().equalsIgnoreCase(userId)) {
-                        //Dòng dưới là test sản phẩm
+
                         if (!tmp.getOrderStatus().equalsIgnoreCase("Completed")) {
                             dsCurrentOrder.add(tmp);
                         } else

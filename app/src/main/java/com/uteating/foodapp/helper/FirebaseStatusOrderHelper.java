@@ -44,6 +44,7 @@ public class FirebaseStatusOrderHelper {
 
     public void readConfirmBills(String userId, final DataStatus dataStatus)
     {
+        //Đọc và lấy các hoá đơn có trạng thái "Confirm" của một user
         mReferenceStatusOrder.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -71,6 +72,7 @@ public class FirebaseStatusOrderHelper {
     }
     public void readShippingBills(String userId, final DataStatus dataStatus)
     {
+        //ọc và lấy các hoá đơn có trạng thái "Shipping" của một user
         mReferenceStatusOrder.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -98,7 +100,9 @@ public class FirebaseStatusOrderHelper {
             }
         });
     }
-    public void readCompletedBills(String userId,final DataStatus dataStatus) {
+    public void readCompletedBills(String userId,final DataStatus dataStatus)
+    {
+        //Đọc và lấy các hoá đơn có trạng thái "Completed" của một user
         mReferenceStatusOrder.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -126,6 +130,7 @@ public class FirebaseStatusOrderHelper {
     }
 
     public void setConfirmToShipping(String billId,final DataStatus dataStatus) {
+        //Cập nhật trạng thái của một hoá đơn từ "Confirm" sang "Shipping".
         mReferenceStatusOrder.child("Bills").child(billId).child("orderStatus").setValue("Shipping")
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -137,6 +142,7 @@ public class FirebaseStatusOrderHelper {
                 });
     }
     public void setShippingToCompleted(String billId,final DataStatus dataStatus) {
+        //Cập nhật trạng thái của một hoá đơn từ "Shipping" sang "Completed".
         mReferenceStatusOrder.child("Bills").child(billId).child("orderStatus").setValue("Completed")
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -170,6 +176,7 @@ public class FirebaseStatusOrderHelper {
     }
 
     public void readSomeInfoOfBill() {
+        //Đọc thông tin về số lượng bán và cập nhật các giá trị liên quan cho các sản phẩm trong hoá đơn.
         mReferenceStatusOrder.child("Products").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -188,6 +195,7 @@ public class FirebaseStatusOrderHelper {
     }
 
     public void updateSoldValueOfProduct() {
+        //Cập nhật giá trị sold của các sản phẩm
         for (int i = 0; i < billInfoList.size(); i++) {
             mReferenceStatusOrder.child("Products").child(billInfoList.get(i).getProductId()).child("sold").setValue(soldValueList.get(i));
         }
