@@ -12,6 +12,7 @@ import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Query;
 
 public interface APIService {
@@ -23,4 +24,10 @@ public interface APIService {
     Call<List<Product>> getProductsByType(@Query("type") String type);
     @GET("/api/products/search")
     Call<List<Product>> searchProduct(@Query("keyword") String keyword);
+    @POST("/api/user/product/add")
+    Call<Product> addProduct(@Body Product product);
+    @PUT("/api/user/product/edit")
+    Call<Product> updateProduct(@Body Product product);
+    @GET("/api/user/products")
+    Call<List<Product>> getProductsPublisherId(@Query("publisherId") String publisherId);
 }
