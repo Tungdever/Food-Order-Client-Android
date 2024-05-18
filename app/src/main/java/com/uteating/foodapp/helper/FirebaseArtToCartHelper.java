@@ -132,28 +132,14 @@ public class FirebaseArtToCartHelper {
             String key = mReferenceCart.child("CartInfos").child(cart.getCartId()).push().getKey();
             cartInfo.setCartInfoId(key);
             mReferenceCart.child("CartInfos").child(cart.getCartId()).child(key).setValue(cartInfo)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void unused) {
-                            if (dataStatus != null) {
-                                dataStatus.DataIsInserted();
-                            }
-
-                            // Update remainAmount in Products of productId
-                            FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).child("remainAmount").addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    int remainAmount = snapshot.getValue(int.class) - cartInfo.getAmount();
-                                    FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).child("remainAmount").setValue(remainAmount);
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        if (dataStatus != null) {
+                            dataStatus.DataIsInserted();
                         }
-                    });
+                    }
+                });
+            }
         }
-    }
 }
