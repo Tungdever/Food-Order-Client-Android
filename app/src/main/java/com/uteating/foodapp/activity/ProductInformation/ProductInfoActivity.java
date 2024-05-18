@@ -3,9 +3,11 @@ package com.uteating.foodapp.activity.ProductInformation;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -56,6 +58,53 @@ public class ProductInfoActivity extends AppCompatActivity {
     private String state;
     private boolean own;
     private Notification notification;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("result", "OK");
+        if (requestCode == 10 && resultCode == 10) {
+            if (data != null) {
+                // Handle the new Intent data here
+                productId = data.getStringExtra("productId");
+                productName = data.getStringExtra("productName");
+                productPrice = data.getIntExtra("productPrice",0);
+                productImage1 = data.getStringExtra("productImage1");
+                productImage2 = data.getStringExtra("productImage2");
+                productImage3 = data.getStringExtra("productImage3");
+                productImage4 = data.getStringExtra("productImage4");
+                ratingStar = data.getDoubleExtra("ratingStar",0.0);
+                userName = data.getStringExtra("userName");
+                productDescription = data.getStringExtra("productDescription");
+                publisherId = data.getStringExtra("publisherId");
+                userId = data.getStringExtra("userId");
+                sold = data.getIntExtra("sold",0);
+                productType = data.getStringExtra("productType");
+                remainAmount = data.getIntExtra("remainAmount", 0);
+                ratingAmount = data.getIntExtra("ratingAmount", 0);
+                state = data.getStringExtra("state");
+
+                // set up default value
+                binding.txtNameProduct.setText(productName);
+                binding.txtPriceProduct.setText(CurrencyFormatter.getFormatter().format(Double.valueOf(productPrice)));
+                binding.txtDesciption.setText(productDescription);
+                binding.txtSell.setText(String.valueOf(sold));
+                binding.ratingBar.setRating(ratingStar.floatValue());
+                binding.txtRemainAmount.setText(String.valueOf(remainAmount));
+                if (publisherId.equals(userId)) {
+                    own = true;
+                    binding.btnAddToCart.setVisibility(View.INVISIBLE);
+                    binding.btnCancelFavourite.setVisibility(View.INVISIBLE);
+                    binding.btnAddFavourite.setVisibility(View.INVISIBLE);
+                    binding.btnChat.setVisibility(View.INVISIBLE);
+                }
+                else {
+                    own = false;
+                    binding.btnEditProduct.setVisibility(View.INVISIBLE);
+                }
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -210,7 +259,7 @@ public class ProductInfoActivity extends AppCompatActivity {
                 Intent intent = new Intent(ProductInfoActivity.this, AddFoodActivity.class);
                 Product product = new Product(productId, productName, productImage1, productImage2, productImage3, productImage4, productPrice, productType, remainAmount, sold, productDescription, ratingStar, ratingAmount, publisherId, state);
                 intent.putExtra("Product updating", product);
-                startActivity(intent);
+                startActivityForResult(intent,10);
             }
         });
     }

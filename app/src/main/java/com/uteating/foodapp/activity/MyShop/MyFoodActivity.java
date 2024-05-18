@@ -3,6 +3,7 @@ package com.uteating.foodapp.activity.MyShop;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -15,18 +16,27 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.Interface.APIService;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.adapter.MyShopAdapter.MyShopAdapter;
 import com.uteating.foodapp.databinding.ActivityMyFoodBinding;
 import com.uteating.foodapp.dialog.LoadingDialog;
 import com.uteating.foodapp.model.Product;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MyFoodActivity extends AppCompatActivity {
     private ActivityMyFoodBinding binding;
-    private ArrayList<Product> ds=new ArrayList<>();
+    private List<Product> ds = new ArrayList<>();
     private MyShopAdapter adapter;
     private String userId;
+    APIService apiService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,9 +47,9 @@ public class MyFoodActivity extends AppCompatActivity {
         getWindow().setNavigationBarColor(Color.parseColor("#E8584D"));
 
         userId = getIntent().getStringExtra("userId");
-        adapter=new MyShopAdapter(ds,MyFoodActivity.this, userId);
+        adapter = new MyShopAdapter(ds, MyFoodActivity.this, userId);
         binding.recycleView.setHasFixedSize(true);
-        binding.recycleView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL,false));
+        binding.recycleView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         binding.recycleView.setAdapter(adapter);
         binding.imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,8 +60,8 @@ public class MyFoodActivity extends AppCompatActivity {
         binding.flpAddFood.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(MyFoodActivity.this,AddFoodActivity.class);
-                intent.putExtra("userId",userId);
+                Intent intent = new Intent(MyFoodActivity.this, AddFoodActivity.class);
+                intent.putExtra("userId", userId);
                 startActivity(intent);
             }
         });
@@ -60,26 +70,24 @@ public class MyFoodActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        LoadingDialog dialog=new LoadingDialog(this);
+        LoadingDialog dialog = new LoadingDialog(this);
         dialog.show();
-        FirebaseDatabase.getInstance().getReference("Products").addListenerForSingleValueEvent(new ValueEventListener() {
+        apiService = RetrofitClient.getRetrofit().create(APIService.class);
+        apiService.getProductsPublisherId(userId).enqueue(new Callback<List<Product>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ds.clear();
-                for (DataSnapshot item:snapshot.getChildren()) {
-                    Product tmp=item.getValue(Product.class);
-                    if (tmp != null && tmp.getPublisherId()!=null) {
-                        if (tmp.getPublisherId().equals(userId) && !tmp.getState().equals("deleted")) {
-                            ds.add(tmp);
-                        }
-                    }
+            public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
+                List<Product> lstProduct = response.body();
+                if (response.isSuccessful()) {
+                    ds.clear();
+                    ds.addAll(lstProduct);
+                    dialog.dismiss();
+                    adapter.notifyDataSetChanged();
+                    Log.d("userid", userId);
+                    Log.d("List food", String.valueOf(ds.size()));
                 }
-                dialog.dismiss();
-                adapter.notifyDataSetChanged();
-             }
-
+            }
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(Call<List<Product>> call, Throwable t) {
 
             }
         });

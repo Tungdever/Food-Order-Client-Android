@@ -28,14 +28,15 @@ import com.uteating.foodapp.model.Product;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MyShopAdapter extends RecyclerView.Adapter {
-    private ArrayList<Product> ds;
+    private List<Product> ds;
     private ViewBinderHelper viewBinderHelper= new ViewBinderHelper();
     private Context context;
     private String userId;
 
-    public MyShopAdapter(ArrayList<Product> ds, Context context, String id) {
+    public MyShopAdapter(List<Product> ds, Context context, String id) {
         viewBinderHelper.setOpenOnlyOne(true);
         this.ds = ds;
         this.context = context;
@@ -166,4 +167,6 @@ public class MyShopAdapter extends RecyclerView.Adapter {
 
         return output;
     }
+
+
 }

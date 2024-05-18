@@ -17,17 +17,25 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.uteating.foodapp.Interface.APIService;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.custom.CustomMessageBox.FailToast;
 import com.uteating.foodapp.custom.CustomMessageBox.SuccessfulToast;
 import com.uteating.foodapp.databinding.FragmentSignUpBinding;
 import com.uteating.foodapp.dialog.LoadingDialog;
 import com.uteating.foodapp.model.Cart;
 import com.uteating.foodapp.model.User;
+import com.uteating.foodapp.model.UserDTO;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class SignUpFragment extends Fragment {
     private FragmentSignUpBinding binding;
     private LoadingDialog dialog;
+    APIService apiService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,6 +48,7 @@ public class SignUpFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (check()) {
+                    apiService = RetrofitClient.getRetrofit().create(APIService.class);
                     String phone = binding.edtPhone.getText().toString();
                     String name = binding.edtName.getText().toString();
                     String email = binding.edtEmail.getText().toString();
@@ -53,7 +62,22 @@ public class SignUpFragment extends Fragment {
                                 new SuccessfulToast(getContext(), task.getResult().getUser().getUid()).showToast();
                                 User tmp = new User(task.getResult().getUser().getUid(), email, "", name, "01/01/2000", phone);
                                 Cart cart = new Cart(FirebaseDatabase.getInstance().getReference().push().getKey(), 0, 0, task.getResult().getUser().getUid());
-
+                                String userId = task.getResult().getUser().getUid();
+                                UserDTO userDTO = new UserDTO(userId,name,email,pass);
+                                apiService.signUp(userDTO).enqueue(new Callback<String>() {
+                                    @Override
+                                    public void onResponse(Call<String> call, Response<String> response) {
+                                        if(response.isSuccessful()) {
+                                            Log.d("noti", "Thanh cong");
+                                        }
+                                        else {
+                                            Log.d("noti", "That bai");
+                                        }
+                                    }
+                                    @Override
+                                    public void onFailure(Call<String> call, Throwable t) {
+                                    }
+                                });
                                 FirebaseDatabase.getInstance().getReference("Users").child(tmp.getUserId())
                                         .setValue(tmp).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override

@@ -34,8 +34,9 @@
     <!-- start ShopInfo  -->
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:src="@drawable/bkg"/>
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:src="@drawable/logo_uteating" />
     <!-- end of ShopInfo  -->
     <!-- start list option -->
     <LinearLayout

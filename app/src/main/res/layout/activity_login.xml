@@ -20,7 +20,7 @@
             android:layout_width="306dp"
             android:layout_height="189dp"
             android:layout_gravity="center"
-            android:background="@drawable/bkg" />
+            android:background="@drawable/logo_uteating" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tablayoutHome"
