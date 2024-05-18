@@ -3,6 +3,7 @@ package com.uteating.foodapp.adapter.Cart;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +22,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.Interface.APIService;
 import com.uteating.foodapp.Interface.IAdapterItemListener;
 import com.uteating.foodapp.R;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.activity.ProductInformation.ProductInfoActivity;
 import com.uteating.foodapp.custom.CustomMessageBox.CustomAlertDialog;
 import com.uteating.foodapp.custom.CustomMessageBox.FailToast;
@@ -33,6 +36,7 @@ import com.uteating.foodapp.helper.FirebaseProductInfoHelper;
 import com.uteating.foodapp.helper.FirebaseUserInfoHelper;
 import com.uteating.foodapp.model.Cart;
 import com.uteating.foodapp.model.CartInfo;
+import com.uteating.foodapp.model.CartProduct;
 import com.uteating.foodapp.model.Notification;
 import com.uteating.foodapp.model.Product;
 import com.uteating.foodapp.model.User;
@@ -40,6 +44,10 @@ import com.uteating.foodapp.model.User;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.ViewHolder> {
     private Context mContext;
@@ -53,6 +61,8 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
     private String userId;
     private String userName;
     private ArrayList<CartInfo> selectedItems = new ArrayList<>();
+    APIService apiService;
+    private int remainAmount;
 
     public CartProductAdapter(Context mContext, List<CartInfo> mCartInfos, String cartId, boolean isCheckAll, String id) {
         this.mContext = mContext;
@@ -99,19 +109,42 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
 
         holder.binding.checkBox.setChecked(isCheckAll);
 
-        FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).addListenerForSingleValueEvent(new ValueEventListener() {
+//        FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                Product product = snapshot.getValue(Product.class);
+//                holder.binding.productName.setText(product.getProductName());
+//                holder.binding.productPrice.setText(convertToMoney(product.getProductPrice())+"đ");
+//                Glide.with(mContext).load(product.getProductImage1()).placeholder(R.mipmap.ic_launcher).into(holder.binding.productImage);
+//                holder.binding.productAmount.setText(String.valueOf(cartInfo.getAmount()));
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+        apiService =  RetrofitClient.getRetrofit().create(APIService.class);
+        apiService.getProductCart(cartInfo.getProductId()).enqueue(new Callback<CartProduct>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Product product = snapshot.getValue(Product.class);
-                holder.binding.productName.setText(product.getProductName());
-                holder.binding.productPrice.setText(convertToMoney(product.getProductPrice())+"đ");
-                Glide.with(mContext).load(product.getProductImage1()).placeholder(R.mipmap.ic_launcher).into(holder.binding.productImage);
-                holder.binding.productAmount.setText(String.valueOf(cartInfo.getAmount()));
+            public void onResponse(Call<CartProduct> call, Response<CartProduct> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    CartProduct cartProduct = response.body();
+                    holder.binding.productName.setText(cartProduct.getProductName());
+                    holder.binding.productPrice.setText(convertToMoney(cartProduct.getProductPrice()) + "đ");
+                    Glide.with(mContext.getApplicationContext()).load(cartProduct.getProductImage1()).placeholder(R.mipmap.ic_launcher).into(holder.binding.productImage);
+                    //holder.binding.productAmount.setText(String.valueOf("Count: " + cartInfo.getAmount()));
+                    holder.binding.productAmount.setText(String.valueOf(cartInfo.getAmount()));
+                    remainAmount  = cartProduct.getRemainAmount();
+                } else {
+
+                    Log.e("Retrofit", "Response not successful: " + response.code());
+                }
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(Call<CartProduct> call, Throwable t) {
 
+                Log.e("Retrofit", "API call failed: " + t.getMessage());
             }
         });
 
@@ -120,81 +153,30 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
         holder.binding.add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).child("remainAmount").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        int amount = Integer.parseInt(holder.binding.productAmount.getText().toString());
-                        int remainAmount = snapshot.getValue(int.class);
-                        if (amount >= remainAmount) {
-                            new FailToast(mContext, "Can't add anymore!").showToast();
-                        }
-                        else {
-                            // Change display value
-                            amount++;
-                            holder.binding.productAmount.setText(String.valueOf(amount));
-                            holder.binding.checkBox.setChecked(false);
-                            isCheckAll = false;
+                int amount = Integer.parseInt(holder.binding.productAmount.getText().toString());
+                if (amount >= remainAmount) {
+                    new FailToast(mContext, "Can't add anymore!").showToast();
+                }
+                else {
+                    // Change display value
+                    amount++;
+                    holder.binding.productAmount.setText(String.valueOf(amount));
+                    holder.binding.checkBox.setChecked(false);
+                    isCheckAll = false;
 
-                            if (adapterItemListener != null) {
-                                adapterItemListener.onCheckedItemCountChanged(0, 0, new ArrayList<>());
-                                adapterItemListener.onAddClicked();
-                            }
-
-                            // Save to firebase
-                            FirebaseDatabase.getInstance().getReference().child("CartInfos").child(cartId).child(cartInfo.getCartInfoId()).child("amount").setValue(amount);
-
-                            FirebaseDatabase.getInstance().getReference().child("Carts").child(cartId).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    Cart cart = snapshot.getValue(Cart.class);
-                                    FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot snapshot1) {
-                                            Product product = snapshot1.getValue(Product.class);
-                                            int totalAmount = cart.getTotalAmount() + 1;
-                                            long totalPrice = cart.getTotalPrice() + product.getProductPrice();
-
-                                            HashMap<String, Object> map = new HashMap<>();
-                                            map.put("totalAmount", totalAmount);
-                                            map.put("totalPrice", totalPrice);
-                                            FirebaseDatabase.getInstance().getReference().child("Carts").child(cartId).updateChildren(map);
-                                        }
-
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError error) {
-
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
-
-                            FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).child("remainAmount").addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    int remainAmount = snapshot.getValue(int.class) - 1;
-                                    FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).child("remainAmount").setValue(remainAmount);
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
-                        }
+                    if (adapterItemListener != null) {
+                        adapterItemListener.onCheckedItemCountChanged(0, 0, new ArrayList<>());
+                        adapterItemListener.onAddClicked();
                     }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                    // Save to firebase
+                    FirebaseDatabase.getInstance().getReference().child("CartInfos").child(cartId).child(cartInfo.getCartInfoId()).child("amount").setValue(amount);
 
-                    }
-                });
+                }
+
             }
         });
+
 
         holder.binding.subtract.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -217,25 +199,7 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
                     FirebaseDatabase.getInstance().getReference().child("Carts").child(cartId).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            Cart cart = snapshot.getValue(Cart.class);
-                            FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot1) {
-                                    Product product = snapshot1.getValue(Product.class);
-                                    int totalAmount = cart.getTotalAmount() - 1;
-                                    long totalPrice = cart.getTotalPrice() - product.getProductPrice();
 
-                                    HashMap<String, Object> map = new HashMap<>();
-                                    map.put("totalAmount", totalAmount);
-                                    map.put("totalPrice", totalPrice);
-                                    FirebaseDatabase.getInstance().getReference().child("Carts").child(cartId).updateChildren(map);
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
                         }
 
                         @Override
@@ -244,18 +208,7 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
                         }
                     });
 
-                    FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).child("remainAmount").addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            int remainAmount = snapshot.getValue(int.class) + 1;
-                            FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).child("remainAmount").setValue(remainAmount);
-                        }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
                 }
                 else {
                     new FailToast(mContext, "Can't reduce anymore!").showToast();
@@ -267,13 +220,28 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
             @Override
             public void onClick(View view) {
                 if (holder.binding.like.getTag().equals("like")) {
-                    FirebaseDatabase.getInstance().getReference().child("Favorites").child(userId).child(cartInfo.getProductId()).setValue(true);
-                    pushNotificationFavourite(cartInfo);
-                    new SuccessfulToast(mContext,"Added to your favourite list").showToast();
-                }
-                else if (holder.binding.like.getTag().equals("liked")) {
-                    FirebaseDatabase.getInstance().getReference().child("Favorites").child(userId).child(cartInfo.getProductId()).removeValue();
-                    new SuccessfulToast(mContext, "Removed from your favourite list").showToast();
+                    FirebaseDatabase.getInstance().getReference().child("Favorites").child(userId).child(cartInfo.getProductId()).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                pushNotificationFavourite(cartInfo);
+                                new SuccessfulToast(mContext, "Added to your favourite list").showToast();
+                                holder.binding.like.setImageResource(R.drawable.ic_liked);
+                                holder.binding.like.setTag("liked");
+                            }
+                        }
+                    });
+                } else if (holder.binding.like.getTag().equals("liked")) {
+                    FirebaseDatabase.getInstance().getReference().child("Favorites").child(userId).child(cartInfo.getProductId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                new SuccessfulToast(mContext, "Removed from your favourite list").showToast();
+                                holder.binding.like.setImageResource(R.drawable.ic_like);
+                                holder.binding.like.setTag("like");
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -281,7 +249,7 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
         holder.binding.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new CustomAlertDialog(mContext,"Delete this product?");
+                new CustomAlertDialog(mContext, "Delete this product?");
                 CustomAlertDialog.binding.btnYes.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -295,50 +263,10 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
                                     if (adapterItemListener != null) {
                                         adapterItemListener.onDeleteProduct();
                                     }
+                                    else{
+
+                                    }
                                 }
-                            }
-                        });
-
-                        FirebaseDatabase.getInstance().getReference().child("Carts").child(cartId).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                Cart cart = snapshot.getValue(Cart.class);
-                                FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        Product product = snapshot.getValue(Product.class);
-                                        int totalAmount = cart.getTotalAmount() - cartInfo.getAmount();
-                                        long totalPrice = cart.getTotalPrice() - (long)(product.getProductPrice() * cartInfo.getAmount());
-
-                                        HashMap<String, Object> map = new HashMap<>();
-                                        map.put("totalAmount", totalAmount);
-                                        map.put("totalPrice", totalPrice);
-                                        FirebaseDatabase.getInstance().getReference().child("Carts").child(cartId).updateChildren(map);
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) {
-
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
-
-                        FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).child("remainAmount").addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                int remainAmount = snapshot.getValue(int.class) + cartInfo.getAmount();
-                                FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).child("remainAmount").setValue(remainAmount);
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
                             }
                         });
                     }
@@ -353,85 +281,93 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
             }
         });
 
+
+
         holder.binding.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                apiService =  RetrofitClient.getRetrofit().create(APIService.class);
+                apiService.getProductCart(cartInfo.getProductId()).enqueue(new Callback<CartProduct>() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Product product = snapshot.getValue(Product.class);
-                        if (isChecked) {
-                            checkedItemCount += cartInfo.getAmount();
-                            checkedItemPrice += cartInfo.getAmount() * product.getProductPrice();
-                            selectedItems.add(cartInfo);
-                        }
-                        else {
-                            checkedItemCount -= cartInfo.getAmount();
-                            checkedItemPrice -= cartInfo.getAmount() * product.getProductPrice();
-                            selectedItems.removeIf(c -> (c.getCartInfoId().equals(cartInfo.getCartInfoId())));
-                        }
+                    public void onResponse(Call<CartProduct> call, Response<CartProduct> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            CartProduct cartProduct = response.body();
+                            if (isChecked) {
+                                checkedItemCount += cartInfo.getAmount();
+                                checkedItemPrice += cartInfo.getAmount() * cartProduct.getProductPrice();
+                                selectedItems.add(cartInfo);
+                            }
+                            else {
+                                checkedItemCount -= cartInfo.getAmount();
+                                checkedItemPrice -= cartInfo.getAmount() * cartProduct.getProductPrice();
+                                selectedItems.removeIf(c -> (c.getCartInfoId().equals(cartInfo.getCartInfoId())));
+                            }
 
-                        if (adapterItemListener != null) {
-                            adapterItemListener.onCheckedItemCountChanged(checkedItemCount, checkedItemPrice, selectedItems);
+                            if (adapterItemListener != null) {
+                                adapterItemListener.onCheckedItemCountChanged(checkedItemCount, checkedItemPrice, selectedItems);
+                            }
+                        } else {
+
+                            Log.e("Retrofit", "Response not successful: " + response.code());
                         }
                     }
-
                     @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                    public void onFailure(Call<CartProduct> call, Throwable t) {
 
+                        Log.e("Retrofit", "API call failed: " + t.getMessage());
                     }
                 });
+
             }
         });
 
         holder.binding.itemContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Product product = snapshot.getValue(Product.class);
-                        if (product != null) {
-                            Intent intent = new Intent(mContext, ProductInfoActivity.class);
-                            intent.putExtra("productId", product.getProductId());
-                            intent.putExtra("productName", product.getProductName());
-                            intent.putExtra("productPrice", product.getProductPrice());
-                            intent.putExtra("productImage1", product.getProductImage1());
-                            intent.putExtra("productImage2", product.getProductImage2());
-                            intent.putExtra("productImage3", product.getProductImage3());
-                            intent.putExtra("productImage4", product.getProductImage4());
-                            intent.putExtra("ratingStar", product.getRatingStar());
-                            intent.putExtra("productDescription", product.getDescription());
-                            intent.putExtra("publisherId", product.getPublisherId());
-                            intent.putExtra("sold", product.getSold());
-                            intent.putExtra("productType", product.getProductType());
-                            intent.putExtra("remainAmount", product.getRemainAmount());
-                            intent.putExtra("ratingAmount", product.getRatingAmount());
-                            intent.putExtra("state", product.getState());
-                            intent.putExtra("userId", userId);
-                            intent.putExtra("userName", userName);
-                            mContext.startActivity(intent);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
+//                FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).addListenerForSingleValueEvent(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                        Product product = snapshot.getValue(Product.class);
+//                        if (product != null) {
+//                            Intent intent = new Intent(mContext, ProductInfoActivity.class);
+//                            intent.putExtra("productId", product.getProductId());
+//                            intent.putExtra("productName", product.getProductName());
+//                            intent.putExtra("productPrice", product.getProductPrice());
+//                            intent.putExtra("productImage1", product.getProductImage1());
+//                            intent.putExtra("productImage2", product.getProductImage2());
+//                            intent.putExtra("productImage3", product.getProductImage3());
+//                            intent.putExtra("productImage4", product.getProductImage4());
+//                            intent.putExtra("ratingStar", product.getRatingStar());
+//                            intent.putExtra("productDescription", product.getDescription());
+//                            intent.putExtra("publisherId", product.getPublisherId());
+//                            intent.putExtra("sold", product.getSold());
+//                            intent.putExtra("productType", product.getProductType());
+//                            intent.putExtra("remainAmount", product.getRemainAmount());
+//                            intent.putExtra("ratingAmount", product.getRatingAmount());
+//                            intent.putExtra("state", product.getState());
+//                            intent.putExtra("userId", userId);
+//                            intent.putExtra("userName", userName);
+//                            mContext.startActivity(intent);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(@NonNull DatabaseError error) {
+//
+//                    }
+//                });
             }
         });
     }
 
     private void isLiked(ImageButton imageButton, String productId) {
-        FirebaseDatabase.getInstance().getReference().child("Favorites").child(userId).addValueEventListener(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference().child("Favorites").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.child(productId).exists()) {
                     imageButton.setImageResource(R.drawable.ic_liked);
                     imageButton.setTag("liked");
-                }
-                else {
+                } else {
                     imageButton.setImageResource(R.drawable.ic_like);
                     imageButton.setTag("like");
                 }
@@ -439,7 +375,7 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                // Handle possible errors
             }
         });
     }

@@ -2,6 +2,8 @@ package com.uteating.foodapp.Interface;
 
 
 
+import com.uteating.foodapp.model.Cart;
+import com.uteating.foodapp.model.CartProduct;
 import com.uteating.foodapp.model.Product;
 import com.uteating.foodapp.model.UserDTO;
 
@@ -23,4 +25,7 @@ public interface APIService {
     Call<List<Product>> getProductsByType(@Query("type") String type);
     @GET("/api/products/search")
     Call<List<Product>> searchProduct(@Query("keyword") String keyword);
+
+    @GET("/api/cart/productCart")
+    Call<CartProduct> getProductCart(@Query("idProduct") String idProduct);
 }
