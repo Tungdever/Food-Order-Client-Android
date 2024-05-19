@@ -15,7 +15,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.Interface.APIService;
 import com.uteating.foodapp.R;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.activity.order.OrderActivity;
 import com.uteating.foodapp.activity.order.OrderDetailActivity;
 import com.uteating.foodapp.custom.CustomAlertDialog;
@@ -26,15 +28,21 @@ import com.uteating.foodapp.helper.FirebaseStatusOrderHelper;
 import com.uteating.foodapp.model.Bill;
 import com.uteating.foodapp.model.BillInfo;
 import com.uteating.foodapp.model.CurrencyFormatter;
+import com.uteating.foodapp.model.Product;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class OrderAdapter extends RecyclerView.Adapter {
     private Context context;
     private ArrayList<Bill> dsOrder;
     private int type;
     private String userId;
+    APIService apiService;
 
     public OrderAdapter(Context context, ArrayList<Bill> dsOrder, int type, String id) {
         this.context = context;
@@ -145,20 +153,26 @@ public class OrderAdapter extends RecyclerView.Adapter {
                     break;
                 }
                 //Lấy thông tin sản phẩm và tải hình ảnh sản phẩm
-                FirebaseDatabase.getInstance().getReference("Products").child(tmp.getProductId()).child("productImage1").addListenerForSingleValueEvent(new ValueEventListener() {
+                apiService =  RetrofitClient.getRetrofit().create(APIService.class);
+                apiService.getProductInfor(tmp.getProductId()).enqueue(new Callback<Product>() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Glide.with(context)
-                                .load(snapshot.getValue(String.class))
-                                .placeholder(R.drawable.default_image)
-                                .into(viewHolder.binding.imgFood);
+                    public void onResponse(Call<Product> call, Response<Product> response) {
+                        if (response.body() != null){
+                            Product product = response.body();
+                            Glide.with(context)
+                                    .load(product.getProductImage1())
+                                    .placeholder(R.drawable.default_image)
+                                    .into(viewHolder.binding.imgFood);
+                        }
+
                     }
 
                     @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                    public void onFailure(Call<Product> call, Throwable t) {
 
                     }
                 });
+
             }
 
             @Override

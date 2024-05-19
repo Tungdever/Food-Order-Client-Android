@@ -46,22 +46,7 @@ public class OrderProductAdapter extends RecyclerView.Adapter<OrderProductAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         CartInfo cartInfo = mCartInfos.get(position);
-//
-//        FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                Product product = snapshot.getValue(Product.class);
-//                holder.binding.orderProductName.setText(product.getProductName());
-//                holder.binding.orderProductPrice.setText(convertToMoney(product.getProductPrice())+"đ");
-//                Glide.with(mContext.getApplicationContext()).load(product.getProductImage1()).placeholder(R.mipmap.ic_launcher).into(holder.binding.orderProductImage);
-//                holder.binding.amount.setText(String.valueOf("Count: "+ cartInfo.getAmount()));
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
+
         apiService =  RetrofitClient.getRetrofit().create(APIService.class);
         apiService.getProductCart(cartInfo.getProductId()).enqueue(new Callback<CartProduct>() {
             @Override

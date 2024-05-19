@@ -3,6 +3,7 @@ package com.uteating.foodapp.activity.Cart_PlaceOrder;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -11,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -18,6 +20,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.uteating.foodapp.GlobalConfig;
+import com.uteating.foodapp.Interface.APIService;
+import com.uteating.foodapp.R;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.activity.Home.HomeActivity;
 import com.uteating.foodapp.adapter.Cart.OrderProductAdapter;
 import com.uteating.foodapp.custom.CustomMessageBox.FailToast;
@@ -28,6 +33,7 @@ import com.uteating.foodapp.model.Address;
 import com.uteating.foodapp.model.Bill;
 import com.uteating.foodapp.model.Cart;
 import com.uteating.foodapp.model.CartInfo;
+import com.uteating.foodapp.model.CartProduct;
 import com.uteating.foodapp.model.Notification;
 import com.uteating.foodapp.model.Product;
 
@@ -38,6 +44,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ProceedOrderActivity extends AppCompatActivity {
     private ActivityProceedOrderBinding binding;
     private OrderProductAdapter orderProductAdapter;
@@ -45,6 +55,7 @@ public class ProceedOrderActivity extends AppCompatActivity {
     private String totalPriceDisplay;
     private String userId;
     private ActivityResultLauncher<Intent> changeAddressLauncher;
+    APIService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,138 +90,149 @@ public class ProceedOrderActivity extends AppCompatActivity {
                     HashMap<String, List<CartInfo>> filterCartInfoMap = new HashMap<>();
                     HashMap<String, Long> filterCartInfoPriceMap = new HashMap<>();
                     HashMap<String, String> filterCartInfoImageUrlMap = new HashMap<>();
-                    FirebaseDatabase.getInstance().getReference().child("Products").addListenerForSingleValueEvent(new ValueEventListener() {
+                    apiService =  RetrofitClient.getRetrofit().create(APIService.class);
+                    apiService.getAllProducts().enqueue(new Callback<List<Product>>() {
                         @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            for (DataSnapshot ds : snapshot.getChildren()) {
-                                Product product = ds.getValue(Product.class);
+                        public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                List<Product> productList = response.body();
+
                                 for (String productId : cartInfoKeySet) {
-                                    if (product.getProductId().equals(productId)) {
-                                        if (filterCartInfoMap.containsKey(product.getPublisherId())) {
-                                            // filterCartInfoMap
-                                            filterCartInfoMap.get(product.getPublisherId()).add(cartInfoMap.get(productId));
+                                    for (Product product : productList) {
+                                        if (product.getProductId().equals(productId)) {
+                                            if (filterCartInfoMap.containsKey(product.getPublisherId())) {
+                                                // filterCartInfoMap
+                                                filterCartInfoMap.get(product.getPublisherId()).add(cartInfoMap.get(productId));
 
-                                            // filterCartInfoPriceMap
-                                            long totalPrice = filterCartInfoPriceMap.get(product.getPublisherId());
-                                            totalPrice += (long) product.getProductPrice() * cartInfoMap.get(productId).getAmount();
-                                            filterCartInfoPriceMap.put(product.getPublisherId(), totalPrice);
-                                        }
-                                        else {
-                                            // filterCartInfoMap
-                                            List<CartInfo> tempList = new ArrayList<>();
-                                            tempList.add(cartInfoMap.get(productId));
-                                            filterCartInfoMap.put(product.getPublisherId(), tempList);
+                                                // filterCartInfoPriceMap
+                                                long totalPrice = filterCartInfoPriceMap.get(product.getPublisherId());
+                                                totalPrice += (long) product.getProductPrice() * cartInfoMap.get(productId).getAmount();
+                                                filterCartInfoPriceMap.put(product.getPublisherId(), totalPrice);
+                                            } else {
+                                                // filterCartInfoMap
+                                                List<CartInfo> tempList = new ArrayList<>();
+                                                tempList.add(cartInfoMap.get(productId));
+                                                filterCartInfoMap.put(product.getPublisherId(), tempList);
 
-                                            // filterCartInfoPriceMap
-                                            long currentTotalPrice = (long) product.getProductPrice() * cartInfoMap.get(productId).getAmount();
-                                            filterCartInfoPriceMap.put(product.getPublisherId(), currentTotalPrice);
+                                                // filterCartInfoPriceMap
+                                                long currentTotalPrice = (long) product.getProductPrice() * cartInfoMap.get(productId).getAmount();
+                                                filterCartInfoPriceMap.put(product.getPublisherId(), currentTotalPrice);
 
-                                            // filterCartInfoImageUrlMap
-                                            String currentImageUrl = product.getProductImage1();
-                                            filterCartInfoImageUrlMap.put(product.getPublisherId(), currentImageUrl);
+                                                // filterCartInfoImageUrlMap
+                                                String currentImageUrl = product.getProductImage1();
+                                                filterCartInfoImageUrlMap.put(product.getPublisherId(), currentImageUrl);
+                                            }
                                         }
                                     }
                                 }
-                            }
 
-                            // Loop through all cartInfo
-                            Set<String> filterCartInfoKeySet = filterCartInfoMap.keySet();
-                            for (String senderId : filterCartInfoKeySet) {
-                                // Add to Bills
-                                String billId = FirebaseDatabase.getInstance().getReference().push().getKey();
-                                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-                                Date date = new Date();
-                                Bill bill = new Bill(GlobalConfig.choseAddressId, billId, formatter.format(date), "Confirm", false, userId, senderId, filterCartInfoPriceMap.get(senderId), filterCartInfoImageUrlMap.get(senderId));
-                                FirebaseDatabase.getInstance().getReference().child("Bills").child(billId).setValue(bill).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            List<CartInfo> cartInfoList1 = filterCartInfoMap.get(senderId);
-                                            for (CartInfo cartInfo : cartInfoList1) {
-                                                // Add to BillInfos
-                                                String billInfoId = FirebaseDatabase.getInstance().getReference().push().getKey();
-                                                HashMap<String, Object> map1 = new HashMap<>();
-                                                map1.put("amount", cartInfo.getAmount());
-                                                map1.put("billInfoId", billInfoId);
-                                                map1.put("productId", cartInfo.getProductId());
-                                                FirebaseDatabase.getInstance().getReference().child("BillInfos").child(billId).child(billInfoId).setValue(map1);
+                                // Các bước tiếp theo như thêm vào hóa đơn (bills) và cập nhật giỏ hàng sẽ được thực hiện ở đây
+                                Set<String> filterCartInfoKeySet = filterCartInfoMap.keySet();
+                                for (String senderId : filterCartInfoKeySet) {
+                                    // Add to Bills
+                                    String billId = FirebaseDatabase.getInstance().getReference().push().getKey();
+                                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                                    Date date = new Date();
+                                    Bill bill = new Bill(GlobalConfig.choseAddressId, billId, formatter.format(date), "Confirm", false, userId, senderId, filterCartInfoPriceMap.get(senderId), filterCartInfoImageUrlMap.get(senderId));
+                                    FirebaseDatabase.getInstance().getReference().child("Bills").child(billId).setValue(bill).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                List<CartInfo> cartInfoList1 = filterCartInfoMap.get(senderId);
+                                                for (CartInfo cartInfo : cartInfoList1) {
+                                                    // Add to BillInfos
+                                                    String billInfoId = FirebaseDatabase.getInstance().getReference().push().getKey();
+                                                    HashMap<String, Object> map1 = new HashMap<>();
+                                                    map1.put("amount", cartInfo.getAmount());
+                                                    map1.put("billInfoId", billInfoId);
+                                                    map1.put("productId", cartInfo.getProductId());
+                                                    FirebaseDatabase.getInstance().getReference().child("BillInfos").child(billId).child(billInfoId).setValue(map1);
 
-                                                // Update Carts and CartInfos
-                                                FirebaseDatabase.getInstance().getReference().child("Carts").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                        for (DataSnapshot ds : snapshot.getChildren()) {
-                                                            Cart cart = ds.getValue(Cart.class);
-                                                            if (cart.getUserId().equals(userId)) {
-                                                                FirebaseDatabase.getInstance().getReference().child("CartInfos").child(cart.getCartId()).child(cartInfo.getCartInfoId()).removeValue();
+                                                    // Update Carts and CartInfos
+                                                    FirebaseDatabase.getInstance().getReference().child("Carts").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                            for (DataSnapshot ds : snapshot.getChildren()) {
+                                                                Cart cart = ds.getValue(Cart.class);
+                                                                if (cart.getUserId().equals(userId)) {
+                                                                    FirebaseDatabase.getInstance().getReference().child("CartInfos").child(cart.getCartId()).child(cartInfo.getCartInfoId()).removeValue();
+                                                                }
                                                             }
                                                         }
-                                                    }
 
-                                                    @Override
-                                                    public void onCancelled(@NonNull DatabaseError error) {
+                                                        @Override
+                                                        public void onCancelled(@NonNull DatabaseError error) {
 
-                                                    }
-                                                });
+                                                        }
+                                                    });
+                                                }
                                             }
                                         }
-                                    }
-                                });
-                                pushNotificationCartCompleteForSeller(bill);
+                                    });
+                                    pushNotificationCartCompleteForSeller(bill);
+                                }
                             }
                         }
 
                         @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
+                        public void onFailure(Call<List<Product>> call, Throwable t) {
+                            // Xử lý lỗi khi gọi API thất bại
                         }
                     });
 
-                    FirebaseDatabase.getInstance().getReference().child("Products").addListenerForSingleValueEvent(new ValueEventListener() {
+                    // Gọi API để lấy danh sách sản phẩm
+                    apiService.getAllProducts().enqueue(new Callback<List<Product>>() {
                         @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot1) {
-                            FirebaseDatabase.getInstance().getReference().child("Carts").addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot2) {
-                                    int totalAmount = 0;
-                                    long totalPrice = 0;
-                                    for (DataSnapshot ds : snapshot1.getChildren()) {
-                                        Product product = ds.getValue(Product.class);
-                                        for (CartInfo cartInfo : cartInfoList) {
-                                            if (cartInfo.getProductId().equals(product.getProductId())) {
-                                                totalAmount += cartInfo.getAmount();
-                                                totalPrice += cartInfo.getAmount() * product.getProductPrice();
+                        public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                List<Product> products = response.body();
+                                FirebaseDatabase.getInstance().getReference().child("Carts").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot2) {
+                                        int totalAmount = 0;
+                                        long totalPrice = 0;
+
+                                        // Duyệt qua tất cả sản phẩm từ API
+                                        for (Product product : products) {
+                                            for (CartInfo cartInfo : cartInfoList) {
+                                                if (cartInfo.getProductId().equals(product.getProductId())) {
+                                                    totalAmount += cartInfo.getAmount();
+                                                    totalPrice += cartInfo.getAmount() * product.getProductPrice();
+                                                }
                                             }
                                         }
-                                    }
 
-                                    for (DataSnapshot ds : snapshot2.getChildren()) {
-                                        Cart cart = ds.getValue(Cart.class);
-                                        if (cart.getUserId().equals(userId)) {
-                                            FirebaseDatabase.getInstance().getReference().child("Carts").child(cart.getCartId()).child("totalAmount").setValue(cart.getTotalAmount() - totalAmount);
-                                            FirebaseDatabase.getInstance().getReference().child("Carts").child(cart.getCartId()).child("totalPrice").setValue(cart.getTotalPrice() - totalPrice);
+                                        // Duyệt qua tất cả giỏ hàng từ Firebase
+                                        for (DataSnapshot ds : snapshot2.getChildren()) {
+                                            Cart cart = ds.getValue(Cart.class);
+                                            if (cart.getUserId().equals(userId)) {
+                                                FirebaseDatabase.getInstance().getReference().child("Carts").child(cart.getCartId()).child("totalAmount").setValue(cart.getTotalAmount() - totalAmount);
+                                                FirebaseDatabase.getInstance().getReference().child("Carts").child(cart.getCartId()).child("totalPrice").setValue(cart.getTotalPrice() - totalPrice);
+                                            }
                                         }
+
+                                        // Hiển thị thông báo thành công và chuyển hướng
+                                        new SuccessfulToast(ProceedOrderActivity.this, "Order created successfully!").showToast();
+                                        cartInfoList.clear();
+                                        Intent intent = new Intent(ProceedOrderActivity.this, HomeActivity.class);
+                                        setResult(RESULT_OK, intent);
+                                        finish();
                                     }
-                                    new SuccessfulToast(ProceedOrderActivity.this, "Order created successfully!").showToast();
 
-                                    cartInfoList.clear();
-                                    Intent intent = new Intent(ProceedOrderActivity.this, HomeActivity.class);
-                                    setResult(RESULT_OK, intent);
-                                    finish();
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+                                        // Xử lý lỗi khi không thể lấy dữ liệu giỏ hàng
+                                    }
+                                });
+                            }
                         }
 
                         @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
+                        public void onFailure(Call<List<Product>> call, Throwable t) {
+                            // Xử lý lỗi khi không thể gọi API
                         }
                     });
+
                 }
 
             }
@@ -282,7 +304,6 @@ public class ProceedOrderActivity extends AppCompatActivity {
     private void loadInfo() {
         // totalPrice
         binding.totalPrice.setText(totalPriceDisplay);
-
         // Address
         FirebaseDatabase.getInstance().getReference().child("Address").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
