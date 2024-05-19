@@ -23,6 +23,7 @@ import com.uteating.foodapp.model.Cart;
 import com.uteating.foodapp.model.CartInfo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CartActivity extends AppCompatActivity {
@@ -91,6 +92,7 @@ public class CartActivity extends AppCompatActivity {
                                     CartInfo cartInfo = ds.getValue(CartInfo.class);
                                     cartInfoList.add(cartInfo);
                                 }
+                                Collections.reverse(cartInfoList);
                                 cartProductAdapter.notifyDataSetChanged();
                             }
                             @Override
@@ -132,6 +134,7 @@ public class CartActivity extends AppCompatActivity {
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     Cart cart = ds.getValue(Cart.class);
                     if (cart.getUserId().equals(userId)) {
+                        Collections.reverse(cartInfoList);
                         cartProductAdapter = new CartProductAdapter(CartActivity.this, cartInfoList, cart.getCartId(), isCheckAll,userId);
                         cartProductAdapter.setAdapterItemListener(new IAdapterItemListener() {
                             @Override
@@ -172,6 +175,7 @@ public class CartActivity extends AppCompatActivity {
                                     CartInfo cartInfo = ds.getValue(CartInfo.class);
                                     cartInfoList.add(cartInfo);
                                 }
+                                Collections.reverse(cartInfoList);
                                 cartProductAdapter.notifyDataSetChanged();
                             }
                             @Override

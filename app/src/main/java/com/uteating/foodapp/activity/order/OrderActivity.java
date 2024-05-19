@@ -19,6 +19,7 @@ import com.uteating.foodapp.dialog.LoadingDialog;
 import com.uteating.foodapp.model.Bill;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class OrderActivity extends AppCompatActivity {
     private String userId;
@@ -83,6 +84,8 @@ public class OrderActivity extends AppCompatActivity {
                             dsHistoryOrder.add(tmp);
                     }
                 }
+                Collections.reverse(dsCurrentOrder);
+                Collections.reverse(dsHistoryOrder);
                 initUI();
             }
 
