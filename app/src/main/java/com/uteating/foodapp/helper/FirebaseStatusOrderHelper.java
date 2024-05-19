@@ -225,10 +225,8 @@ public class FirebaseStatusOrderHelper {
             @Override
             public void onResponse(Call<Product> call, Response<Product> response) {
                 if (response.isSuccessful()) {
-
                 }
             }
-
             @Override
             public void onFailure(Call<Product> call, Throwable t) {
                 // Xử lý lỗi khi không thể cập nhật sản phẩm

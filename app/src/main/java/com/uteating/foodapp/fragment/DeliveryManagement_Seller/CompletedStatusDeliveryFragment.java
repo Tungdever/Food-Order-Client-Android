@@ -14,6 +14,7 @@ import com.uteating.foodapp.databinding.FragmentConfirmStatusDeliveryBinding;
 import com.uteating.foodapp.helper.FirebaseStatusOrderHelper;
 import com.uteating.foodapp.model.Bill;
 
+import java.util.Collections;
 import java.util.List;
 
 public class CompletedStatusDeliveryFragment extends Fragment {
@@ -35,6 +36,7 @@ public class CompletedStatusDeliveryFragment extends Fragment {
         new FirebaseStatusOrderHelper(userId).readCompletedBills(userId, new FirebaseStatusOrderHelper.DataStatus() {
             @Override
             public void DataIsLoaded(List<Bill> bills, boolean isExistingBill) {
+                Collections.reverse(bills);
                 StatusOrderRecyclerViewAdapter adapter = new StatusOrderRecyclerViewAdapter(getContext(),bills);
                 binding.recCompletedDelivery.setHasFixedSize(true);
                 binding.recCompletedDelivery.setLayoutManager(new LinearLayoutManager(getContext()));

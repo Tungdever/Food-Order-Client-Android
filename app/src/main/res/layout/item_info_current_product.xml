@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/orange"
                 android:textAlignment="gravity"
-                android:text="Received"
+                android:text="Confirm"
                 android:textSize="20dp"
                 />
         </LinearLayout>
