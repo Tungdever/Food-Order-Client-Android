@@ -128,7 +128,6 @@ public class FirebaseNotificationHelper {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         String currentDateAndTime = sdf.format(new Date());
         notification.setTime(currentDateAndTime);
-
         return notification;
     }
 }

@@ -2,6 +2,8 @@ package com.uteating.foodapp.adapter.Home;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +23,14 @@ public class FindAdapter extends RecyclerView.Adapter{
 
     private String userId;
     private Context mContext;
+    SharedPreferences sharedPreferences;
+    private ArrayList<String> history_search = new ArrayList<>();
 
     public FindAdapter(ArrayList<String> ds, String id,Context context) {
+        sharedPreferences = context.getSharedPreferences("history_search", context.MODE_PRIVATE);
+        history_search.add(sharedPreferences.getString("1st", ""));
+        history_search.add(sharedPreferences.getString("2nd", ""));
+        history_search.add(sharedPreferences.getString("3rd", ""));
         this.mContext = context;
         this.ds=ds;
         this.userId = id;
@@ -43,9 +51,11 @@ public class FindAdapter extends RecyclerView.Adapter{
             viewHolder.binding.txtSearched.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    Log.d("size", String.valueOf(history_search.size()));
                     Intent intent = new Intent(mContext, ResultSearchActivity.class);
                     intent.putExtra("userId", userId);
                     intent.putExtra("text", item);
+                    intent.putStringArrayListExtra("search",history_search);
                     mContext.startActivity(intent);
                 }
             });

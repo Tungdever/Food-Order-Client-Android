@@ -8,7 +8,6 @@
         android:icon="@drawable/user_icon"
         app:cnb_iconColor="@color/main"/>
 
-
     <item
         android:id="@+id/orderMenu"
         android:title="Your order"
@@ -25,5 +24,9 @@
         android:title="Log Out"
         android:icon="@drawable/logout_icon"
         app:cnb_iconColor="@color/main"/>
-
+    <item
+        android:id="@+id/manager"
+        android:icon="@drawable/baseline_manages_24"
+        android:title="Manager"
+        app:cnb_iconColor="@color/main" />
 </menu>

@@ -6,9 +6,10 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.SearchView;
+
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -60,24 +61,12 @@ public class FindActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String s) {
                 SharedPreferences sharedPreferences = getSharedPreferences("history_search", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                // Log the current search history
-                for (String item : history_search) {
-                    Log.d("before", item);
-                }
-                // Add the new search term to the history, avoiding duplicates
                 if (!s.equals(history_search.get(0))) {
                     history_search.add(0, s); // Add to the start
                     if (history_search.size() > 3) {
                         history_search.remove(3); // Remove the oldest item if the list exceeds 3
                     }
                 }
-                // Log the updated search history
-                for (String item : history_search) {
-                    Log.d("after", item);
-                }
-                adapter.notifyDataSetChanged();
-
-                // Update the SharedPreferences with the new search history
                 editor.clear();
                 if (history_search.size() > 2) {
                     editor.putString("3rd", history_search.get(2));
@@ -89,12 +78,13 @@ public class FindActivity extends AppCompatActivity {
                     editor.putString("1st", history_search.get(0));
                 }
                 editor.commit();
-
-                // Start the ResultSearchActivity with the search term
                 Intent intent = new Intent(FindActivity.this, ResultSearchActivity.class);
                 intent.putExtra("userId", userId);
                 intent.putExtra("text", s);
+                intent.putStringArrayListExtra("search",history_search);
+                Log.d("text size", String.valueOf(history_search.size()));
                 startActivity(intent);
+                adapter.notifyDataSetChanged();
                 return true;
             }
 

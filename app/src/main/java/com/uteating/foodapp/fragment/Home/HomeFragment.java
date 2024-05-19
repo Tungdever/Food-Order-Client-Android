@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
@@ -105,6 +106,7 @@ public class HomeFragment extends Fragment {
             }
         });
         binding.viewPager2.setPageTransformer(new DepthPageTransformer());
+
     }
     private List<Images> getListImages() {
         List<Images> list = new ArrayList<>();

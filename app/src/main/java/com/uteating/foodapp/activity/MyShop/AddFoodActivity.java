@@ -369,7 +369,6 @@ public class AddFoodActivity extends AppCompatActivity {
                         uploadDialog.dismiss();
                         new FailToast(AddFoodActivity.this, "Some error occurred!").showToast();
                         Log.e("Update", "Lỗi cập nhật sản phẩm");
-
                     }
                 }
                 @Override
@@ -428,7 +427,7 @@ public class AddFoodActivity extends AppCompatActivity {
                                 String amount = binding.lnAddFood.edtAmount.getText().toString();
                                 String description = binding.lnAddFood.edtDescp.getText().toString();
                                 Product tmp = new Product(name, img1, img2, img3, img4, Integer.valueOf(price),
-                                        binding.lnAddFood.rbFood.isChecked() ? "Food" : "Drink", Integer.valueOf(amount), 0, description, 0.0, 0, userId, "");
+                                        binding.lnAddFood.rbFood.isChecked() ? "Food" : "Drink", Integer.valueOf(amount), 0, description, 0.0, 0, userId);
                                 uploadProduct(tmp);
                             } else {
                                 if (position == FIRST_IMAGE) {
@@ -457,7 +456,7 @@ public class AddFoodActivity extends AppCompatActivity {
                 String amount = binding.lnAddFood.edtAmount.getText().toString();
                 String description = binding.lnAddFood.edtDescp.getText().toString();
                 Product tmp = new Product(name, img1, img2, img3, img4, Integer.valueOf(price),
-                        binding.lnAddFood.rbFood.isChecked() ? "Food" : "Drink", Integer.valueOf(amount), 0, description, 0.0, 0, userId, "");
+                        binding.lnAddFood.rbFood.isChecked() ? "Food" : "Drink", Integer.valueOf(amount), 0, description, 0.0, 0, userId);
                 uploadProduct(tmp);
             }
         }
