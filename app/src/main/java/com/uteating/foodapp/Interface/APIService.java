@@ -15,6 +15,7 @@ import retrofit2.http.Field;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.Query;
 
@@ -36,4 +37,8 @@ public interface APIService {
 
     @GET("/api/cart/productCart")
     Call<CartProduct> getProductCart(@Query("idProduct") String idProduct);
+    @GET("/api/products/{productId}")
+    Call<Product> getProductInfor(@Path("productId") String productId);
+
+
 }

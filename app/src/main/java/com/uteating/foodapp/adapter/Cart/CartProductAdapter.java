@@ -109,21 +109,6 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
 
         holder.binding.checkBox.setChecked(isCheckAll);
 
-//        FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                Product product = snapshot.getValue(Product.class);
-//                holder.binding.productName.setText(product.getProductName());
-//                holder.binding.productPrice.setText(convertToMoney(product.getProductPrice())+"đ");
-//                Glide.with(mContext).load(product.getProductImage1()).placeholder(R.mipmap.ic_launcher).into(holder.binding.productImage);
-//                holder.binding.productAmount.setText(String.valueOf(cartInfo.getAmount()));
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
         apiService =  RetrofitClient.getRetrofit().create(APIService.class);
         apiService.getProductCart(cartInfo.getProductId()).enqueue(new Callback<CartProduct>() {
             @Override
@@ -324,38 +309,39 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
         holder.binding.itemContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                FirebaseDatabase.getInstance().getReference().child("Products").child(cartInfo.getProductId()).addListenerForSingleValueEvent(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                        Product product = snapshot.getValue(Product.class);
-//                        if (product != null) {
-//                            Intent intent = new Intent(mContext, ProductInfoActivity.class);
-//                            intent.putExtra("productId", product.getProductId());
-//                            intent.putExtra("productName", product.getProductName());
-//                            intent.putExtra("productPrice", product.getProductPrice());
-//                            intent.putExtra("productImage1", product.getProductImage1());
-//                            intent.putExtra("productImage2", product.getProductImage2());
-//                            intent.putExtra("productImage3", product.getProductImage3());
-//                            intent.putExtra("productImage4", product.getProductImage4());
-//                            intent.putExtra("ratingStar", product.getRatingStar());
-//                            intent.putExtra("productDescription", product.getDescription());
-//                            intent.putExtra("publisherId", product.getPublisherId());
-//                            intent.putExtra("sold", product.getSold());
-//                            intent.putExtra("productType", product.getProductType());
-//                            intent.putExtra("remainAmount", product.getRemainAmount());
-//                            intent.putExtra("ratingAmount", product.getRatingAmount());
-//                            intent.putExtra("state", product.getState());
-//                            intent.putExtra("userId", userId);
-//                            intent.putExtra("userName", userName);
-//                            mContext.startActivity(intent);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(@NonNull DatabaseError error) {
-//
-//                    }
-//                });
+                apiService.getProductInfor(cartInfo.getProductId()).enqueue(new Callback<Product>() {
+                    @Override
+                    public void onResponse(Call<Product> call, Response<Product> response) {
+                        if(response.body() != null){
+                            Product product = response.body();
+                            Intent intent = new Intent(mContext, ProductInfoActivity.class);
+                            intent.putExtra("productId", product.getProductId());
+                            intent.putExtra("productName", product.getProductName());
+                            intent.putExtra("productPrice", product.getProductPrice());
+                            intent.putExtra("productImage1", product.getProductImage1());
+                            intent.putExtra("productImage2", product.getProductImage2());
+                            intent.putExtra("productImage3", product.getProductImage3());
+                            intent.putExtra("productImage4", product.getProductImage4());
+                            intent.putExtra("ratingStar", product.getRatingStar());
+                            intent.putExtra("productDescription", product.getDescription());
+                            intent.putExtra("publisherId", product.getPublisherId());
+                            intent.putExtra("sold", product.getSold());
+                            intent.putExtra("productType", product.getProductType());
+                            intent.putExtra("remainAmount", product.getRemainAmount());
+                            intent.putExtra("ratingAmount", product.getRatingAmount());
+                            intent.putExtra("state", product.getState());
+                            intent.putExtra("userId", userId);
+                            intent.putExtra("userName", userName);
+                            mContext.startActivity(intent);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Product> call, Throwable t) {
+
+                    }
+                });
+
             }
         });
     }
