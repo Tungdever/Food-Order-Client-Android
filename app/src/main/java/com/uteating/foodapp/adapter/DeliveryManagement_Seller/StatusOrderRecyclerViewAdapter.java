@@ -48,6 +48,7 @@ public class StatusOrderRecyclerViewAdapter extends RecyclerView.Adapter<StatusO
         holder.binding.txtDateOfOrder.setText(bill.getOrderDate());
         holder.binding.txtOrderTotal.setText(convertToMoney(bill.getTotalPrice()) + "đ");
 
+
         holder.binding.imgProductImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Glide.with(mContext)
                 .asBitmap()
@@ -56,7 +57,7 @@ public class StatusOrderRecyclerViewAdapter extends RecyclerView.Adapter<StatusO
 
         if (bill.getOrderStatus().equals("Confirm"))
         {
-            holder.binding.btnChangeStatus.setText("Shipping");
+            holder.binding.btnChangeStatus.setText("Confirm");
             holder.binding.btnChangeStatus.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

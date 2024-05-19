@@ -322,45 +322,34 @@ public class ProductInfoActivity extends AppCompatActivity {
             // truong hop chua co san pham hien tai trong gio hang
             if (!isProductExists)
             {
-                FirebaseDatabase.getInstance().getReference().child("Products").child(productId).child("remainAmount").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        int remainAmount = snapshot.getValue(int.class);
-                        if (amount <= remainAmount) {
-                            CartInfo cartInfo = new CartInfo();
-                            cartInfo.setProductId(productId);
-                            cartInfo.setAmount(amount);
-                            currentCart.setTotalAmount(currentCart.getTotalAmount()+amount);
-                            currentCart.setTotalPrice(currentCart.getTotalPrice()+amount*productPrice);
-                            new FirebaseArtToCartHelper().updateCart(currentCart,cartInfo,false ,new FirebaseArtToCartHelper.DataStatus() {
+                if (amount <= remainAmount) {
+                    CartInfo cartInfo = new CartInfo();
+                    cartInfo.setProductId(productId);
+                    cartInfo.setAmount(amount);
+                    currentCart.setTotalAmount(currentCart.getTotalAmount()+amount);
+                    currentCart.setTotalPrice(currentCart.getTotalPrice()+amount*productPrice);
+                    new FirebaseArtToCartHelper().updateCart(currentCart,cartInfo,false ,new FirebaseArtToCartHelper.DataStatus() {
 
-                                @Override
-                                public void DataIsLoaded(Cart cart, CartInfo cartInfo, boolean isExistsCart, boolean isExistsProduct) {
+                        @Override
+                        public void DataIsLoaded(Cart cart, CartInfo cartInfo, boolean isExistsCart, boolean isExistsProduct) {
 
-                                }
-
-                                @Override
-                                public void DataIsInserted() {
-                                    new SuccessfulToast(ProductInfoActivity.this, "Added to your cart").showToast();
-                                }
-
-                                @Override
-                                public void DataIsUpdated() {
-                                }
-
-                                @Override
-                                public void DataIsDeleted() {
-
-                                }
-                            });
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                        @Override
+                        public void DataIsInserted() {
+                            new SuccessfulToast(ProductInfoActivity.this, "Added to your cart").showToast();
+                        }
 
-                    }
-                });
+                        @Override
+                        public void DataIsUpdated() {
+                        }
+
+                        @Override
+                        public void DataIsDeleted() {
+
+                        }
+                    });
+                }
             }
             else {  // truong hop da co san pham hien tai trong gio hang
                 new FailToast(ProductInfoActivity.this,"This product has already been in the cart!").showToast();
