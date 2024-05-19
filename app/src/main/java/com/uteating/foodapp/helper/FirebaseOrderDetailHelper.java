@@ -8,17 +8,24 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.Interface.APIService;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.model.BillInfo;
 import com.uteating.foodapp.model.Product;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class FirebaseOrderDetailHelper {
     private FirebaseDatabase mDatabase;
     private DatabaseReference mReferenceStatusOrder;
 
     List<BillInfo> billInfos = new ArrayList<>();
+    APIService apiService;
     public interface DataStatus{
         void DataIsLoaded(String addresss, List<BillInfo> billInfos);
         void DataIsInserted();
@@ -67,10 +74,25 @@ public class FirebaseOrderDetailHelper {
         mReferenceStatusOrder.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Product product = snapshot.child("Products").child(productId).getValue(Product.class);
-                if (dataStatus != null) {
-                    dataStatus.DataIsLoaded(product);
-                }
+                apiService =  RetrofitClient.getRetrofit().create(APIService.class);
+                apiService.getProductInfor(productId).enqueue(new Callback<Product>() {
+                    @Override
+                    public void onResponse(Call<Product> call, Response<Product> response) {
+                        if (response.body() != null ){
+                            Product product = response.body();
+                            if (dataStatus != null) {
+                                dataStatus.DataIsLoaded(product);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Product> call, Throwable t) {
+
+                    }
+                });
+               // Product product = snapshot.child("Products").child(productId).getValue(Product.class);
+
             }
 
             @Override
