@@ -14,11 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.uteating.foodapp.Interface.APIService;
 import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.adapter.Home.FoodDrinkFrgAdapter;
@@ -34,14 +29,14 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class FoodHomeFrg extends Fragment {
+public class FoodHomeFrg extends Fragment{
     private FragmentFoodHomeFrgBinding binding;
     private List<Product> dsCurrentFood;
     private List<Product> totalFood;
     private FoodDrinkFrgAdapter adapter;
     private String userId;
     private boolean isLoading = false;
-    private int itemCount = 20;
+    private int itemCount = 5;
     private boolean isScrolling = true;
     private String lastKey = null;
     APIService apiService;
@@ -111,7 +106,6 @@ public class FoodHomeFrg extends Fragment {
             }
         });
     }
-
     private void loadMore() {
         if (position < totalFood.size()) {
             dsCurrentFood.add(null);
@@ -129,7 +123,7 @@ public class FoodHomeFrg extends Fragment {
                     adapter.notifyDataSetChanged();
                     isLoading = false;
                 }
-            }, 1000);
+            }, 1500);
         } else {
             isScrolling = false;
             adapter.notifyDataSetChanged();

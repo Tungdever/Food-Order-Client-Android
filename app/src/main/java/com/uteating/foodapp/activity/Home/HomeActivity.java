@@ -43,6 +43,7 @@ import com.uteating.foodapp.activity.Cart_PlaceOrder.CartActivity;
 import com.uteating.foodapp.activity.Cart_PlaceOrder.EmptyCartActivity;
 import com.uteating.foodapp.activity.MyShop.MyShopActivity;
 import com.uteating.foodapp.activity.ProductInformation.ProductInfoActivity;
+import com.uteating.foodapp.activity.manager.ManagerActivity;
 import com.uteating.foodapp.activity.order.OrderActivity;
 import com.uteating.foodapp.activity.order.OrderDetailActivity;
 import com.uteating.foodapp.activity.orderSellerManagement.DeliveryManagementActivity;
@@ -78,9 +79,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
         // Request permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(HomeActivity.this,
@@ -104,7 +103,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 103);
             }
         }
-
         initUI();
         loadInformationForNavigationBar();
     }
@@ -129,6 +127,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         setEventNavigationBottom();
         setCartNavigation();
         binding.navigationLeft.setNavigationItemSelectedListener(this);
+
     }
 
     private void setCartNavigation()
@@ -330,6 +329,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 }
             });
             CustomAlertDialog.showAlertDialog();
+        }
+        else {
+            Intent intent3 = new Intent(this, ManagerActivity.class);
+            intent3.putExtra("userId", userId);
+            startActivity(intent3);
         }
         binding.drawLayoutHome.close();
         return true;

@@ -41,7 +41,7 @@ public class DrinkHomeFrg extends Fragment {
     private FoodDrinkFrgAdapter adapter;
     private String userId;
     private boolean isLoading = false;
-    private int itemCount = 20;
+    private int itemCount = 5;
     private boolean isScrolling = true;
     private String lastKey = null;
     private int position = 0;
