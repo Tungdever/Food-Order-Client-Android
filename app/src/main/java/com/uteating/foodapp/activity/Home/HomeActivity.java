@@ -414,8 +414,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private void makeNotification(Notification notification) {
         String channelId = "CHANNEL_ID_NOTIFICATION";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelId);
-        Bitmap largeIcon = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.bkg);
-        builder.setSmallIcon(R.drawable.bkg)
+        Bitmap largeIcon = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.logo_uteating);
+        builder.setSmallIcon(R.drawable.logo_uteating)
                 .setContentTitle("Food services")
                 .setContentText(notification.getTitle())
                 .setStyle(new NotificationCompat.BigTextStyle()

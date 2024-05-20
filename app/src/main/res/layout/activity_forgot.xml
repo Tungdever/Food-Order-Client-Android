@@ -11,7 +11,7 @@
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="254.04dp"
-        android:background="@drawable/bkg"
+        android:background="@drawable/logo_uteating"
         android:orientation="vertical"
         tools:context=".MainActivity"
         tools:ignore="MissingConstraints"

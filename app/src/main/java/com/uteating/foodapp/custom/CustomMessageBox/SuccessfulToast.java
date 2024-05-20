@@ -17,7 +17,7 @@ public class SuccessfulToast {
 
         toast = new Toast(mContext);
         toast.setView(binding.getRoot());
-        toast.setGravity(Gravity.BOTTOM, 0, 0);
+        toast.setGravity(Gravity.BOTTOM, 0, 10);
         toast.setDuration(Toast.LENGTH_LONG);
 
         binding.layoutSuccessfulToast.setTranslationX(-2000);
