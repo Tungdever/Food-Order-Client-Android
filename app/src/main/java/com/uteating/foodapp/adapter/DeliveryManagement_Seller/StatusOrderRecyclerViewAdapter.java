@@ -32,7 +32,10 @@ import com.uteating.foodapp.model.BillInfo;
 import com.uteating.foodapp.model.Notification;
 import com.uteating.foodapp.model.Product;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -81,19 +84,14 @@ public class StatusOrderRecyclerViewAdapter extends RecyclerView.Adapter<StatusO
                         @Override
                         public void onCheckComplete(boolean canChangeStatus) {
                             if (canChangeStatus) {
-                                //holder.binding.btnChangeStatus.setEnabled(true);
-                                //holder.binding.btnChangeStatus.setBackgroundResource(R.drawable.background_feedback_enable_button);
+
                                 new FirebaseStatusOrderHelper().setConfirmToShipping(bill.getBillId(), new FirebaseStatusOrderHelper.DataStatus() {
                                     @Override
                                     public void DataIsLoaded(List<Bill> bills, boolean isExistingBill) {
-
                                     }
-
                                     @Override
                                     public void DataIsInserted() {
-
                                     }
-
                                     @Override
                                     public void DataIsUpdated() {
                                         new SuccessfulToast(mContext, "Order has been changed to shipping state!").showToast();
@@ -102,7 +100,6 @@ public class StatusOrderRecyclerViewAdapter extends RecyclerView.Adapter<StatusO
 
                                     @Override
                                     public void DataIsDeleted() {
-
                                     }
                                 });
                             } else {
@@ -237,31 +234,16 @@ public class StatusOrderRecyclerViewAdapter extends RecyclerView.Adapter<StatusO
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists() && snapshot.hasChildren()) {
-                    BillInfo billInfo = snapshot.getChildren().iterator().next().getValue(BillInfo.class);
+                    List<BillInfo> billInfoList = new ArrayList<>();
 
-                    if (billInfo != null) {
-                        sold = billInfo.getAmount();
-                        apiService = RetrofitClient.getRetrofit().create(APIService.class);
-                        apiService.getProductInfor(billInfo.getProductId()).enqueue(new Callback<Product>() {
-                            @Override
-                            public void onResponse(Call<Product> call, Response<Product> response) {
-                                if (response.isSuccessful() && response.body() != null) {
-                                    Product product = response.body();
-                                    remainAmount = product.getRemainAmount();
-                                    callback.onCheckComplete(remainAmount >= sold);
-                                } else {
-                                    callback.onCheckComplete(false);
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<Product> call, Throwable t) {
-                                callback.onCheckComplete(false);
-                            }
-                        });
-                    } else {
-                        callback.onCheckComplete(false);
+                    for (DataSnapshot billInfoSnapshot : snapshot.getChildren()) {
+                        BillInfo billInfo = billInfoSnapshot.getValue(BillInfo.class);
+                        if (billInfo != null) {
+                            billInfoList.add(billInfo);
+                        }
                     }
+
+                    checkRemainAmountForAllProducts(billInfoList, callback);
                 } else {
                     callback.onCheckComplete(false);
                 }
@@ -274,7 +256,45 @@ public class StatusOrderRecyclerViewAdapter extends RecyclerView.Adapter<StatusO
         });
     }
 
+    private void checkRemainAmountForAllProducts(List<BillInfo> billInfoList, RemainAmountCallback callback) {
+        AtomicInteger pendingRequests = new AtomicInteger(billInfoList.size());
+        AtomicBoolean allValid = new AtomicBoolean(true);
 
+        for (BillInfo billInfo : billInfoList) {
+            int sold = billInfo.getAmount();
+            APIService apiService = RetrofitClient.getRetrofit().create(APIService.class);
+            apiService.getProductInfor(billInfo.getProductId()).enqueue(new Callback<Product>() {
+                @Override
+                public void onResponse(Call<Product> call, Response<Product> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Product product = response.body();
+                        int remainAmount = product.getRemainAmount();
+                        if (remainAmount < sold) {
+                            allValid.set(false);
+                        }
+                    } else {
+                        allValid.set(false);
+                    }
+                    if (pendingRequests.decrementAndGet() == 0) {
+                        callback.onCheckComplete(allValid.get());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Product> call, Throwable t) {
+                    allValid.set(false);
+                    if (pendingRequests.decrementAndGet() == 0) {
+                        callback.onCheckComplete(false);
+                    }
+                }
+            });
+        }
+
+        // If there are no items in the list, directly call the callback with false
+        if (billInfoList.isEmpty()) {
+            callback.onCheckComplete(false);
+        }
+    }
 
 
 }
