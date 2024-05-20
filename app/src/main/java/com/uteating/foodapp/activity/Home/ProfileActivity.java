@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -14,16 +15,25 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.Interface.APIService;
 import com.uteating.foodapp.R;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.activity.MyShop.MyShopActivity;
 import com.uteating.foodapp.activity.order.OrderActivity;
+import com.uteating.foodapp.custom.SuccessfulToast;
 import com.uteating.foodapp.databinding.ActivityProfileBinding;
 import com.uteating.foodapp.model.User;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class ProfileActivity extends AppCompatActivity {
     private ActivityProfileBinding binding;
     private String userId;
+    private APIService apiService;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +71,8 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(ProfileActivity.this, EditProfileActivity.class);
                 intent.putExtra("userId",userId);
+                intent.putExtra("username", user.getUserName());
+                intent.putExtra("user", user);
                 startActivity(intent);
             }
         });
@@ -83,20 +95,28 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void getUserInfo(Context mContext) {
-        FirebaseDatabase.getInstance().getReference().child("Users").child(userId).addValueEventListener(new ValueEventListener() {
+        apiService =  RetrofitClient.getRetrofit().create(APIService.class);
+        apiService.getUserByUserId(userId).enqueue(new Callback<User>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User user = snapshot.getValue(User.class);
-
-                binding.userName.setText(user.getUserName());
-                binding.userEmail.setText(user.getEmail());
-                binding.userPhoneNumber.setText(user.getPhoneNumber());
-                Glide.with(mContext.getApplicationContext()).load(user.getAvatarURL()).placeholder(R.drawable.default_avatar).into(binding.userAvatar);
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    user = response.body();
+                    binding.userName.setText(user.getUserName());
+                    binding.userEmail.setText(user.getEmail());
+                    binding.userPhoneNumber.setText(user.getPhoneNumber());
+                    Glide.with(mContext.getApplicationContext())
+                            .load(user.getAvatarURL())
+                            .placeholder(R.drawable.default_avatar)
+                            .into(binding.userAvatar);
+                } else {
+                    // Handle the case where the response is not successful
+                    Log.d("getUserInfo", response.message());
+                }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.d("getUserInfoonFailure", t.getMessage());
             }
         });
     }
