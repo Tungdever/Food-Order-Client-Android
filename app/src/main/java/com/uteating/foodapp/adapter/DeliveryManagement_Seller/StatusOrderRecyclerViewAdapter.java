@@ -14,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.uteating.foodapp.Interface.APIService;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.activity.orderSellerManagement.DetailOfOrderDeliveryManagementActivity;
 import com.uteating.foodapp.custom.SuccessfulToast;
 import com.uteating.foodapp.databinding.ItemOrderStatusListBinding;
@@ -21,12 +23,18 @@ import com.uteating.foodapp.helper.FirebaseNotificationHelper;
 import com.uteating.foodapp.helper.FirebaseStatusOrderHelper;
 import com.uteating.foodapp.model.Bill;
 import com.uteating.foodapp.model.Notification;
+import com.uteating.foodapp.model.Product;
 
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class StatusOrderRecyclerViewAdapter extends RecyclerView.Adapter<StatusOrderRecyclerViewAdapter.ViewHolder> {
     Context mContext;
     List<Bill> billList;
+    APIService apiService;
 
     public StatusOrderRecyclerViewAdapter(Context mContext, List<Bill> billList) {
         this.mContext = mContext;

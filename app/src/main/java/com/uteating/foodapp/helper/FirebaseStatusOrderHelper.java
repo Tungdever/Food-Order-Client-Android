@@ -153,19 +153,6 @@ public class FirebaseStatusOrderHelper {
                         }
                     }
                 });
-    }
-    public void setShippingToCompleted(String billId,final DataStatus dataStatus) {
-        //Cập nhật trạng thái của một hoá đơn từ "Shipping" sang "Completed".
-        mReferenceStatusOrder.child("Bills").child(billId).child("orderStatus").setValue("Completed")
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        if (dataStatus != null) {
-                            dataStatus.DataIsUpdated();
-                        }
-                    }
-                });
-
         // set sold and remainAmount value of Product
         billInfoList = new ArrayList<>();
         soldValueList = new ArrayList<>();
@@ -187,6 +174,20 @@ public class FirebaseStatusOrderHelper {
             }
         });
     }
+    public void setShippingToCompleted(String billId,final DataStatus dataStatus) {
+        //Cập nhật trạng thái của một hoá đơn từ "Shipping" sang "Completed".
+        mReferenceStatusOrder.child("Bills").child(billId).child("orderStatus").setValue("Completed")
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        if (dataStatus != null) {
+                            dataStatus.DataIsUpdated();
+                        }
+                    }
+                });
+
+
+    }
 
     public void readSomeInfoOfBill() {
         // Đọc thông tin về số lượng bán và cập nhật các giá trị liên quan cho các sản phẩm trong hoá đơn.
@@ -195,7 +196,7 @@ public class FirebaseStatusOrderHelper {
         apiService.getAllProducts().enqueue(new Callback<List<Product>>() {
             @Override
             public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
-                if (response.body() != null) {
+                if (response.body() != null && response.isSuccessful()) {
                     List<Product> products = response.body();
                     for (BillInfo info : billInfoList) {
                         for (Product pro : products) {
@@ -205,13 +206,12 @@ public class FirebaseStatusOrderHelper {
                                 soldValueList.add(sold);
                                 pro.setSold(sold);
                                 pro.setRemainAmount(amount - sold);
-                                updateSoldValueOfProduct(pro);  // Gọi hàm để cập nhật sản phẩm
                             }
                         }
                     }
+                    updateSoldValueOfProduct(products);
                 }
             }
-
             @Override
             public void onFailure(Call<List<Product>> call, Throwable t) {
                 // Xử lý lỗi khi không thể lấy danh sách sản phẩm
@@ -220,18 +220,21 @@ public class FirebaseStatusOrderHelper {
     }
 
 
-    public void updateSoldValueOfProduct(Product pro) {
-        apiService.updateProduct(pro).enqueue(new Callback<Product>() {
-            @Override
-            public void onResponse(Call<Product> call, Response<Product> response) {
-                if (response.isSuccessful()) {
+    public void updateSoldValueOfProduct(List<Product> listro) {
+        for(Product pro : listro){
+            apiService.updateProduct(pro).enqueue(new Callback<Product>() {
+                @Override
+                public void onResponse(Call<Product> call, Response<Product> response) {
+                    if (response.isSuccessful()) {
+                    }
                 }
-            }
-            @Override
-            public void onFailure(Call<Product> call, Throwable t) {
-                // Xử lý lỗi khi không thể cập nhật sản phẩm
-            }
-        });
+                @Override
+                public void onFailure(Call<Product> call, Throwable t) {
+                    // Xử lý lỗi khi không thể cập nhật sản phẩm
+                }
+            });
+        }
+
     }
 
 }
