@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="#FDFCFC"
     tools:context=".fragment.Home.FavoriteFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -12,14 +12,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintHeight_percent="0.1"
-        android:background="#FFFFFF"
+        android:background="#F44336"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="0dp">
 
         <TextView
             android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="300dp"
+            android:layout_height="101dp"
             android:layout_marginLeft="35dp"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/sfpro_semibold"
@@ -47,12 +47,14 @@
         android:id="@+id/recFavouriteFood"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
+        android:background="@color/ic_launcher_background"
         android:nestedScrollingEnabled="false"
         app:layout_constraintBottom_toBottomOf="@+id/nestedScrollView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/nestedScrollView"
-        app:layout_constraintTop_toBottomOf="@+id/nestedScrollView" />
+        app:layout_constraintTop_toBottomOf="@+id/nestedScrollView"
+
+        />
 
     </androidx.core.widget.NestedScrollView>
 
