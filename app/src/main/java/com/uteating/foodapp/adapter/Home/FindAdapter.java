@@ -23,13 +23,8 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.ViewHolder> {
     private String userId;
     private Context mContext;
     SharedPreferences sharedPreferences;
-    private ArrayList<String> history_search = new ArrayList<>();
 
     public FindAdapter(ArrayList<String> ds, String id, Context context) {
-        sharedPreferences = context.getSharedPreferences("history_search", Context.MODE_PRIVATE);
-        history_search.add(sharedPreferences.getString("1st", ""));
-        history_search.add(sharedPreferences.getString("2nd", ""));
-        history_search.add(sharedPreferences.getString("3rd", ""));
         this.mContext = context;
         this.ds = ds;
         this.userId = id;
@@ -49,11 +44,9 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.ViewHolder> {
             holder.binding.txtSearched.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.d("size", String.valueOf(history_search.size()));
                     Intent intent = new Intent(mContext, ResultSearchActivity.class);
                     intent.putExtra("userId", userId);
                     intent.putExtra("text", item);
-                    intent.putStringArrayListExtra("search", history_search);
                     // Cast mContext to Activity before calling startActivityForResult
                     if (mContext instanceof Activity) {
                         ((Activity) mContext).startActivityForResult(intent, 101);

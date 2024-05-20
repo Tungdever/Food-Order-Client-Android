@@ -81,7 +81,6 @@ public class FindActivity extends AppCompatActivity {
                 Intent intent = new Intent(FindActivity.this, ResultSearchActivity.class);
                 intent.putExtra("userId", userId);
                 intent.putExtra("text", s);
-                intent.putStringArrayListExtra("search",history_search);
                 Log.d("text size", String.valueOf(history_search.size()));
                 startActivityForResult(intent, 101);
                 adapter.notifyDataSetChanged();
@@ -133,16 +132,12 @@ public class FindActivity extends AppCompatActivity {
                     history_search.clear(); // Clear the existing data
                     history_search.addAll(arr); // Add the new data
                     Log.d("Size return", String.valueOf(history_search.size()));
+                    for (String i: history_search){
+                        Log.d("value", i);
+                    }
                     adapter.notifyDataSetChanged();
-                } else {
-                    Log.d("onActivityResult", "No history_search returned");
                 }
-            } else {
-                Log.d("onActivityResult", "No data returned");
             }
-        } else {
-            Log.d("onActivityResult", "Unexpected requestCode or resultCode");
         }
     }
-
 }

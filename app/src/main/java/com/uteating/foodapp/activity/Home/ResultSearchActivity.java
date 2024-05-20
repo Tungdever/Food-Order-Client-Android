@@ -1,5 +1,6 @@
 package com.uteating.foodapp.activity.Home;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -251,7 +252,10 @@ public class ResultSearchActivity extends AppCompatActivity {
         intent = getIntent();
         userId = intent.getStringExtra("userId");
         text = intent.getStringExtra("text");
-        history_search = (ArrayList<String>) intent.getStringArrayListExtra("search");
+        SharedPreferences sharedPreferences = this.getSharedPreferences("history_search", Context.MODE_PRIVATE);
+        history_search.add(sharedPreferences.getString("1st", ""));
+        history_search.add(sharedPreferences.getString("2nd", ""));
+        history_search.add(sharedPreferences.getString("3rd", ""));
 
         Log.d("text", text);
         dsCurrent = new ArrayList<>();
