@@ -32,7 +32,7 @@ import java.util.List;
 
 public class MyShopAdapter extends RecyclerView.Adapter {
     private List<Product> ds;
-    private ViewBinderHelper viewBinderHelper= new ViewBinderHelper();
+    private ViewBinderHelper viewBinderHelper = new ViewBinderHelper();
     private Context context;
     private String userId;
 

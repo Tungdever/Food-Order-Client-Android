@@ -24,7 +24,6 @@ import java.util.ArrayList;
 
 public class FindActivity extends AppCompatActivity {
     private ActivityFindBinding binding;
-    private final DatabaseReference productsReference = FirebaseDatabase.getInstance().getReference("Products");
     private ArrayList<String> history_search;
     private FindAdapter adapter;
     private String userId;
