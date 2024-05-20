@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -82,7 +83,7 @@ public class FindActivity extends AppCompatActivity {
                 intent.putExtra("text", s);
                 intent.putStringArrayListExtra("search",history_search);
                 Log.d("text size", String.valueOf(history_search.size()));
-                startActivity(intent);
+                startActivityForResult(intent, 101);
                 adapter.notifyDataSetChanged();
                 return true;
             }
@@ -108,7 +109,7 @@ public class FindActivity extends AppCompatActivity {
         if (!sharedPrefsFile.exists()) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("1st", "Trà sữa");
-            editor.putString("2nd", "Bánh tráng");
+            editor.putString("2nd", "Cơm");
             editor.putString("3rd", "Bún");
             editor.apply(); // Don't forget to apply changes
         }
@@ -120,5 +121,28 @@ public class FindActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("requestCode", String.valueOf(requestCode));
+        Log.d("resultCode", String.valueOf(resultCode));
+        if (requestCode == 101 && resultCode == 101) {
+            if (data != null) {
+                ArrayList<String> arr = data.getStringArrayListExtra("history_search");
+                if (arr != null) {
+                    history_search.clear(); // Clear the existing data
+                    history_search.addAll(arr); // Add the new data
+                    Log.d("Size return", String.valueOf(history_search.size()));
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Log.d("onActivityResult", "No history_search returned");
+                }
+            } else {
+                Log.d("onActivityResult", "No data returned");
+            }
+        } else {
+            Log.d("onActivityResult", "Unexpected requestCode or resultCode");
+        }
+    }
 
 }
