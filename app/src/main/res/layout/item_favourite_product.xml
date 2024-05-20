@@ -21,7 +21,10 @@
             android:layout_gravity="top|center"
             android:elevation="1dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/tmp2"/>
+            android:src="@drawable/tmp2"
+            style="@style/Widget.MaterialComponents.ShapeableImageView"
+            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle"
+            />
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
