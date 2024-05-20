@@ -90,6 +90,7 @@ public class ProceedOrderActivity extends AppCompatActivity {
                     HashMap<String, List<CartInfo>> filterCartInfoMap = new HashMap<>();
                     HashMap<String, Long> filterCartInfoPriceMap = new HashMap<>();
                     HashMap<String, String> filterCartInfoImageUrlMap = new HashMap<>();
+
                     apiService =  RetrofitClient.getRetrofit().create(APIService.class);
                     apiService.getAllProducts().enqueue(new Callback<List<Product>>() {
                         @Override
@@ -165,6 +166,7 @@ public class ProceedOrderActivity extends AppCompatActivity {
 
                                                         }
                                                     });
+
                                                 }
                                             }
                                         }

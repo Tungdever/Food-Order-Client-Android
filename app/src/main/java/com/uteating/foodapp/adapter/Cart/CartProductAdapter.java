@@ -62,7 +62,6 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
     private String userName;
     private ArrayList<CartInfo> selectedItems = new ArrayList<>();
     APIService apiService;
-    private int remainAmount;
 
     public CartProductAdapter(Context mContext, List<CartInfo> mCartInfos, String cartId, boolean isCheckAll, String id) {
         this.mContext = mContext;
@@ -80,17 +79,14 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
 
             @Override
             public void DataIsInserted() {
-
             }
 
             @Override
             public void DataIsUpdated() {
-
             }
 
             @Override
             public void DataIsDeleted() {
-
             }
         });
     }
@@ -109,7 +105,7 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
 
         holder.binding.checkBox.setChecked(isCheckAll);
 
-        apiService =  RetrofitClient.getRetrofit().create(APIService.class);
+        apiService = RetrofitClient.getRetrofit().create(APIService.class);
         apiService.getProductCart(cartInfo.getProductId()).enqueue(new Callback<CartProduct>() {
             @Override
             public void onResponse(Call<CartProduct> call, Response<CartProduct> response) {
@@ -118,17 +114,18 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
                     holder.binding.productName.setText(cartProduct.getProductName());
                     holder.binding.productPrice.setText(convertToMoney(cartProduct.getProductPrice()) + "đ");
                     Glide.with(mContext.getApplicationContext()).load(cartProduct.getProductImage1()).placeholder(R.mipmap.ic_launcher).into(holder.binding.productImage);
-                    //holder.binding.productAmount.setText(String.valueOf("Count: " + cartInfo.getAmount()));
+                    holder.binding.productAmount.setText("Count: " + cartInfo.getAmount());
                     holder.binding.productAmount.setText(String.valueOf(cartInfo.getAmount()));
-                    remainAmount  = cartProduct.getRemainAmount();
-                } else {
 
+                    // Set the remainAmount for this ViewHolder
+                    holder.setRemainAmount(cartProduct.getRemainAmount());
+                } else {
                     Log.e("Retrofit", "Response not successful: " + response.code());
                 }
             }
+
             @Override
             public void onFailure(Call<CartProduct> call, Throwable t) {
-
                 Log.e("Retrofit", "API call failed: " + t.getMessage());
             }
         });
@@ -139,10 +136,9 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
             @Override
             public void onClick(View view) {
                 int amount = Integer.parseInt(holder.binding.productAmount.getText().toString());
-                if (amount >= remainAmount) {
+                if (amount >= holder.remainAmount) {
                     new FailToast(mContext, "Can't add anymore!").showToast();
-                }
-                else {
+                } else {
                     // Change display value
                     amount++;
                     holder.binding.productAmount.setText(String.valueOf(amount));
@@ -156,9 +152,7 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
 
                     // Save to firebase
                     FirebaseDatabase.getInstance().getReference().child("CartInfos").child(cartId).child(cartInfo.getCartInfoId()).child("amount").setValue(amount);
-
                 }
-
             }
         });
 
@@ -407,12 +401,18 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final ItemCartProductBinding binding;
+        private int remainAmount; // Local variable to hold remainAmount
 
         public ViewHolder(ItemCartProductBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
+
+        public void setRemainAmount(int remainAmount) {
+            this.remainAmount = remainAmount;
+        }
     }
+
     public void pushNotificationFavourite(CartInfo cartInfo)
     {
         new FirebaseProductInfoHelper(cartInfo.getProductId()).readInformationById(new FirebaseProductInfoHelper.DataStatusInformationOfProduct() {
