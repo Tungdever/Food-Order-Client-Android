@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,6 +50,18 @@ public class ManagerAdapter extends RecyclerView.Adapter{
                 @Override
                 public void onClick(View view) {
 
+                }
+            });
+            viewHolder.binding.sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        // Thực hiện hành động khi Switch được bật
+                        Toast.makeText(viewHolder.binding.getRoot().getContext(), "Switch is ON", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Thực hiện hành động khi Switch bị tắt
+                        Toast.makeText(viewHolder.binding.getRoot().getContext(), "Switch is OFF", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }
