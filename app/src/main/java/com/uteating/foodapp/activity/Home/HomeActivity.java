@@ -81,7 +81,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     User user;
 
-    private APIService apiService;
+
 
     private static final int NOTIFICATION_PERMISSION_CODE = 10023;
     private static final int STORAGE_PERMISSION_CODE = 101;

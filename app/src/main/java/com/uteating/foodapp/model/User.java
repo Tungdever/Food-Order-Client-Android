@@ -14,13 +14,9 @@ public class User implements Serializable {
     private String phone;
     private boolean admin;
 
-    public boolean isAdmin() {
-        return admin;
-    }
 
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
-    }
+
+
 
     public boolean isAdmin() {
         return isAdmin;
