@@ -46,7 +46,6 @@ public class Product implements Serializable {
         this.ratingStar = ratingStar;
         this.ratingAmount = ratingAmount;
         this.publisherId = publisherId;
-        this.state = state;
     }
     public Product(String productId, String productName, String productImage1, String productImage2, String productImage3, String productImage4, int productPrice, String productType, int remainAmount, int sold, String description, Double ratingStar, int ratingAmount, String publisherId, String state, boolean checked) {
         this.productId = productId;

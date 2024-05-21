@@ -47,7 +47,9 @@ public interface APIService {
     @PUT("/api/user/feedback")
     Call<Product> addComment(@Query("ratingAmount") int ratingAmount, @Query("ratingStar") double ratingStar, @Query("productId") String productId);
 
-
     @GET("/api/cart/productCart")
     Call<CartProduct> getProductCart(@Query("idProduct") String idProduct);
+
+    @PUT("/api/admin/product/check")
+    Call<Product> checkProduct(@Query("userId") String userId, @Query("productId") String productId);
 }
