@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,7 +39,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.Interface.APIService;
 import com.uteating.foodapp.R;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.activity.Cart_PlaceOrder.CartActivity;
 import com.uteating.foodapp.activity.Cart_PlaceOrder.EmptyCartActivity;
 import com.uteating.foodapp.activity.MyShop.MyShopActivity;
@@ -65,11 +68,19 @@ import com.uteating.foodapp.model.User;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private String userId;
     private ActivityHomeBinding binding;
     private LinearLayout layoutMain;
     private Fragment selectionFragment;
+
+    User user;
+
+    private APIService apiService;
 
     private static final int NOTIFICATION_PERMISSION_CODE = 10023;
     private static final int STORAGE_PERMISSION_CODE = 101;
@@ -378,29 +389,26 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        new FirebaseUserInfoHelper(this).readUserInfo(userId, new FirebaseUserInfoHelper.DataStatus() {
+
+        apiService = RetrofitClient.getRetrofit().create(APIService.class);
+        apiService.getUserByUserId(userId).enqueue(new Callback<User>() {
             @Override
-            public void DataIsLoaded(User user) {
-                View headerView = binding.navigationLeft.getHeaderView(0);
-                ShapeableImageView imgAvatarInNavigationBar = (ShapeableImageView) headerView.findViewById(R.id.imgAvatarInNavigationBar);
-                TextView txtNameInNavigationBar = (TextView) headerView.findViewById(R.id.txtNameInNavigationBar);
-                txtNameInNavigationBar.setText("Hi, " + getLastName(user.getUserName()));
-                Glide.with(HomeActivity.this).load(user.getAvatarURL()).placeholder(R.drawable.default_avatar).into(imgAvatarInNavigationBar);
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    user = response.body();
+                    View headerView = binding.navigationLeft.getHeaderView(0);
+                    ShapeableImageView imgAvatarInNavigationBar = (ShapeableImageView) headerView.findViewById(R.id.imgAvatarInNavigationBar);
+                    TextView txtNameInNavigationBar = (TextView) headerView.findViewById(R.id.txtNameInNavigationBar);
+                    txtNameInNavigationBar.setText("Hi, " + getLastName(user.getUserName()));
+                    Glide.with(HomeActivity.this).load(user.getAvatarURL()).placeholder(R.drawable.default_avatar).into(imgAvatarInNavigationBar);
+                } else {
+                    Log.d("Username", "uncessfully");
+                }
             }
 
             @Override
-            public void DataIsInserted() {
-
-            }
-
-            @Override
-            public void DataIsUpdated() {
-
-            }
-
-            @Override
-            public void DataIsDeleted() {
-
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.d("Username", "failed");
             }
         });
     }
@@ -454,74 +462,62 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (!notification.getProductId().equals("None")) {
             final String[] userName = new String[1];
-            FirebaseDatabase.getInstance().getReference().child("Users").child(userId).addValueEventListener(new ValueEventListener() {
+            userName[0] = user.getUserName();
+
+            apiService = RetrofitClient.getRetrofit().create(APIService.class);
+            apiService.getProductInfor(notification.getProductId()).enqueue(new Callback<Product>() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    userName[0] = snapshot.child("userName").getValue(String.class);
-                }
+                public void onResponse(Call<Product> call, Response<Product> response) {
+                    if (response.isSuccessful()) {
+                        Product item = response.body();
+                        Intent intent = new Intent(getApplicationContext(), ProductInfoActivity.class);
+                        intent.putExtra("productId", item.getProductId());
+                        intent.putExtra("productName", item.getProductName());
+                        intent.putExtra("productPrice", item.getProductPrice());
+                        intent.putExtra("productImage1", item.getProductImage1());
+                        intent.putExtra("productImage2", item.getProductImage2());
+                        intent.putExtra("productImage3", item.getProductImage3());
+                        intent.putExtra("productImage4", item.getProductImage4());
+                        intent.putExtra("ratingStar", item.getRatingStar());
+                        intent.putExtra("productDescription", item.getDescription());
+                        intent.putExtra("publisherId", item.getPublisherId());
+                        intent.putExtra("sold", item.getSold());
+                        intent.putExtra("productType", item.getProductType());
+                        intent.putExtra("remainAmount", item.getRemainAmount());
+                        intent.putExtra("ratingAmount", item.getRatingAmount());
+                        intent.putExtra("state", item.getState());
+                        intent.putExtra("userId", userId);
+                        intent.putExtra("userName", userName);
+                        intent.putExtra("notification", notification);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
+                        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE);
+                        builder.setContentIntent(pendingIntent);
+                        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-                }
-            });
-            new FirebaseProductInfoHelper(notification.getProductId()).readInformationById(new FirebaseProductInfoHelper.DataStatusInformationOfProduct() {
-                @Override
-                public void DataIsLoaded(Product item) {
-                    Intent intent = new Intent(getApplicationContext(), ProductInfoActivity.class);
-                    intent.putExtra("productId", item.getProductId());
-                    intent.putExtra("productName", item.getProductName());
-                    intent.putExtra("productPrice", item.getProductPrice());
-                    intent.putExtra("productImage1", item.getProductImage1());
-                    intent.putExtra("productImage2", item.getProductImage2());
-                    intent.putExtra("productImage3", item.getProductImage3());
-                    intent.putExtra("productImage4", item.getProductImage4());
-                    intent.putExtra("ratingStar", item.getRatingStar());
-                    intent.putExtra("productDescription", item.getDescription());
-                    intent.putExtra("publisherId", item.getPublisherId());
-                    intent.putExtra("sold", item.getSold());
-                    intent.putExtra("productType", item.getProductType());
-                    intent.putExtra("remainAmount", item.getRemainAmount());
-                    intent.putExtra("ratingAmount", item.getRatingAmount());
-                    intent.putExtra("state", item.getState());
-                    intent.putExtra("userId", userId);
-                    intent.putExtra("userName", userName);
-                    intent.putExtra("notification", notification);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-                    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE);
-                    builder.setContentIntent(pendingIntent);
-                    NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelId);
-                        if (notificationChannel == null) {
-                            int importance = NotificationManager.IMPORTANCE_HIGH;
-                            notificationChannel = new NotificationChannel(channelId, "Some description", importance);
-                            notificationChannel.setLightColor(Color.GREEN);
-                            notificationChannel.enableVibration(true);
-                            notificationManager.createNotificationChannel(notificationChannel);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelId);
+                            if (notificationChannel == null) {
+                                int importance = NotificationManager.IMPORTANCE_HIGH;
+                                notificationChannel = new NotificationChannel(channelId, "Some description", importance);
+                                notificationChannel.setLightColor(Color.GREEN);
+                                notificationChannel.enableVibration(true);
+                                notificationManager.createNotificationChannel(notificationChannel);
+                            }
                         }
+
+                        notificationManager.notify(0, builder.build());
+                    } else {
+                        Log.d("Product", "unsuccessful");
                     }
-
-                    notificationManager.notify(0, builder.build());
                 }
 
                 @Override
-                public void DataIsInserted() {
-
-                }
-
-                @Override
-                public void DataIsUpdated() {
-
-                }
-
-                @Override
-                public void DataIsDeleted() {
-
+                public void onFailure(Call<Product> call, Throwable t) {
+                    Log.d("ProductFailure", t.getMessage());
                 }
             });
+
         }
         else if (!notification.getConfirmId().equals("None")) {
             Intent intent = new Intent(getApplicationContext(), DeliveryManagementActivity.class);

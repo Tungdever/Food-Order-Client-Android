@@ -11,6 +11,16 @@ public class User implements Serializable {
     private String birthDate;
     private String phone;
 
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
+    private boolean isAdmin;
+
     public User() {
     }
 

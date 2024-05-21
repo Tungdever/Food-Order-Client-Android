@@ -3,6 +3,7 @@ package com.uteating.foodapp.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.Interface.APIService;
 import com.uteating.foodapp.R;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.activity.Home.ChatDetailActivity;
 import com.uteating.foodapp.activity.ProductInformation.ProductInfoActivity;
 import com.uteating.foodapp.activity.order.OrderDetailActivity;
@@ -31,10 +34,16 @@ import com.uteating.foodapp.model.Product;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class NotificationListAdapter extends RecyclerView.Adapter<NotificationListAdapter.ViewHolder> {
     private Context mContext;
     private List<Notification> notificationList;
     private String userId;
+
+    private APIService apiService;
 
     public NotificationListAdapter(Context mContext, List<Notification> notificationList,String id) {
         this.mContext = mContext;
@@ -127,43 +136,39 @@ public class NotificationListAdapter extends RecyclerView.Adapter<NotificationLi
 
                         }
                     });
-                    new FirebaseProductInfoHelper(notification.getProductId()).readInformationById(new FirebaseProductInfoHelper.DataStatusInformationOfProduct() {
+                    apiService = RetrofitClient.getRetrofit().create(APIService.class);
+                    apiService.getProductInfor(notification.getProductId()).enqueue(new Callback<Product>() {
                         @Override
-                        public void DataIsLoaded(Product item) {
-                            Intent intent = new Intent(mContext, ProductInfoActivity.class);
-                            intent.putExtra("productId", item.getProductId());
-                            intent.putExtra("productName", item.getProductName());
-                            intent.putExtra("productPrice", item.getProductPrice());
-                            intent.putExtra("productImage1", item.getProductImage1());
-                            intent.putExtra("productImage2", item.getProductImage2());
-                            intent.putExtra("productImage3", item.getProductImage3());
-                            intent.putExtra("productImage4", item.getProductImage4());
-                            intent.putExtra("ratingStar", item.getRatingStar());
-                            intent.putExtra("productDescription", item.getDescription());
-                            intent.putExtra("publisherId", item.getPublisherId());
-                            intent.putExtra("sold", item.getSold());
-                            intent.putExtra("productType", item.getProductType());
-                            intent.putExtra("remainAmount", item.getRemainAmount());
-                            intent.putExtra("ratingAmount", item.getRatingAmount());
-                            intent.putExtra("state", item.getState());
-                            intent.putExtra("userId", userId);
-                            intent.putExtra("userName", userName);
-                            mContext.startActivity(intent);
+                        public void onResponse(Call<Product> call, Response<Product> response) {
+                            if (response.isSuccessful()) {
+                                Product item = response.body();
+                                Intent intent = new Intent(mContext, ProductInfoActivity.class);
+                                intent.putExtra("productId", item.getProductId());
+                                intent.putExtra("productName", item.getProductName());
+                                intent.putExtra("productPrice", item.getProductPrice());
+                                intent.putExtra("productImage1", item.getProductImage1());
+                                intent.putExtra("productImage2", item.getProductImage2());
+                                intent.putExtra("productImage3", item.getProductImage3());
+                                intent.putExtra("productImage4", item.getProductImage4());
+                                intent.putExtra("ratingStar", item.getRatingStar());
+                                intent.putExtra("productDescription", item.getDescription());
+                                intent.putExtra("publisherId", item.getPublisherId());
+                                intent.putExtra("sold", item.getSold());
+                                intent.putExtra("productType", item.getProductType());
+                                intent.putExtra("remainAmount", item.getRemainAmount());
+                                intent.putExtra("ratingAmount", item.getRatingAmount());
+                                intent.putExtra("state", item.getState());
+                                intent.putExtra("userId", userId);
+                                intent.putExtra("userName", userName);
+                                mContext.startActivity(intent);
+                            } else {
+                                Log.d("ProductNoti", "unsuccessful");
+                            }
                         }
 
                         @Override
-                        public void DataIsInserted() {
-
-                        }
-
-                        @Override
-                        public void DataIsUpdated() {
-
-                        }
-
-                        @Override
-                        public void DataIsDeleted() {
-
+                        public void onFailure(Call<Product> call, Throwable t) {
+                            Log.d("ProductNotiFailure", t.getMessage());
                         }
                     });
                 }

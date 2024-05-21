@@ -1,7 +1,12 @@
 package com.uteating.foodapp.adapter.Cart;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -415,48 +420,44 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
 
     public void pushNotificationFavourite(CartInfo cartInfo)
     {
-        new FirebaseProductInfoHelper(cartInfo.getProductId()).readInformationById(new FirebaseProductInfoHelper.DataStatusInformationOfProduct() {
+        apiService = RetrofitClient.getRetrofit().create(APIService.class);
+        apiService.getProductInfor(cartInfo.getProductId()).enqueue(new Callback<Product>() {
             @Override
-            public void DataIsLoaded(Product product) {
-                String title = "Favourite product";
-                String content = userName + " liked your product: "+ product.getProductName() + ". Go to Product Information to check it.";
-                Notification notification = FirebaseNotificationHelper.createNotification(title,content,product.getProductImage1(),product.getProductId(),"None","None", null);
-                new FirebaseNotificationHelper(mContext).addNotification(product.getPublisherId(), notification, new FirebaseNotificationHelper.DataStatus() {
-                    @Override
-                    public void DataIsLoaded(List<Notification> notificationList, List<Notification> notificationListToNotify) {
+            public void onResponse(Call<Product> call, Response<Product> response) {
+                if (response.isSuccessful()) {
+                    Product product = response.body();
+                    String title = "Favourite product";
+                    String content = userName + " liked your product: "+ product.getProductName() + ". Go to Product Information to check it.";
+                    Notification notification = FirebaseNotificationHelper.createNotification(title,content,product.getProductImage1(),product.getProductId(),"None","None", null);
+                    new FirebaseNotificationHelper(mContext).addNotification(product.getPublisherId(), notification, new FirebaseNotificationHelper.DataStatus() {
+                        @Override
+                        public void DataIsLoaded(List<Notification> notificationList, List<Notification> notificationListToNotify) {
 
-                    }
+                        }
 
-                    @Override
-                    public void DataIsInserted() {
+                        @Override
+                        public void DataIsInserted() {
 
-                    }
+                        }
 
-                    @Override
-                    public void DataIsUpdated() {
+                        @Override
+                        public void DataIsUpdated() {
 
-                    }
+                        }
 
-                    @Override
-                    public void DataIsDeleted() {
+                        @Override
+                        public void DataIsDeleted() {
 
-                    }
-                });
+                        }
+                    });
+                } else {
+                    Log.d("ProductCart", "unsuccessful");
+                }
             }
 
             @Override
-            public void DataIsInserted() {
-
-            }
-
-            @Override
-            public void DataIsUpdated() {
-
-            }
-
-            @Override
-            public void DataIsDeleted() {
-
+            public void onFailure(Call<Product> call, Throwable t) {
+                Log.d("ProductCartFailure", t.getMessage());
             }
         });
     }
