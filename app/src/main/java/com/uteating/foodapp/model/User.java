@@ -19,14 +19,13 @@ public class User implements Serializable {
 
 
     public boolean isAdmin() {
-        return isAdmin;
+        return admin;
     }
 
     public void setAdmin(boolean admin) {
-        isAdmin = admin;
+        admin = admin;
     }
 
-    private boolean isAdmin;
 
     public User() {
     }
