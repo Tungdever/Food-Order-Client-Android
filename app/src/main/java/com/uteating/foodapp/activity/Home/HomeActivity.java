@@ -77,6 +77,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private ActivityHomeBinding binding;
     private LinearLayout layoutMain;
     private Fragment selectionFragment;
+    private APIService apiService;
 
     User user;
 
@@ -91,6 +92,26 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Log.d("userId", userId);
+        apiService =  RetrofitClient.getRetrofit().create(APIService.class);
+        apiService.getUserByUserId(userId).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                User user = response.body();
+                if (!user.isAdmin()) {
+                    Menu navMenu = binding.navigationLeft.getMenu();
+                    MenuItem item = navMenu.findItem(R.id.manager);
+                    item.setVisible(false);
+                }
+                Log.d("Admin", String.valueOf(user.isAdmin()));
+            }
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+
+            }
+        });
+
+
         // Request permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(HomeActivity.this,

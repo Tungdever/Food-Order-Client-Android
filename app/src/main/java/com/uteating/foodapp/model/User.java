@@ -1,5 +1,7 @@
 package com.uteating.foodapp.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 public class User implements Serializable {
@@ -10,6 +12,15 @@ public class User implements Serializable {
     private String username;
     private String birthDate;
     private String phone;
+    private boolean admin;
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
 
     public boolean isAdmin() {
         return isAdmin;
@@ -41,6 +52,15 @@ public class User implements Serializable {
         this.username = username;
         this.birthDate = birthDate;
         this.phone = phone;
+    }
+    public User(String userId, String fullName, String username, String email, String avatarURL,String phone, boolean isAdmin) {
+        this.userId = userId;
+        this.fullName = fullName;
+        this.email = email;
+        this.avatarURL = avatarURL;
+        this.username = username;
+        this.phone = phone;
+        this.admin = isAdmin;
     }
 
     public String getUserId() {
