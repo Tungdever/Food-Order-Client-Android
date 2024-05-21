@@ -1,14 +1,15 @@
 package com.uteating.foodapp.activity.feedback;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import com.uteating.foodapp.R;
 import com.uteating.foodapp.adapter.FeedBackAdapter;
 import com.uteating.foodapp.databinding.ActivityFeedBackBinding;
 import com.uteating.foodapp.model.Bill;
@@ -24,7 +25,7 @@ public class FeedBackActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding=ActivityFeedBackBinding.inflate(getLayoutInflater());
+        binding= ActivityFeedBackBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         Intent intent=getIntent();

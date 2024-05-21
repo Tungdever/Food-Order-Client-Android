@@ -4,6 +4,7 @@ package com.uteating.foodapp.Interface;
 
 import com.uteating.foodapp.model.Cart;
 import com.uteating.foodapp.model.CartProduct;
+import com.uteating.foodapp.model.Comment;
 import com.uteating.foodapp.model.Product;
 import com.uteating.foodapp.model.User;
 import com.uteating.foodapp.model.UserDTO;
@@ -43,6 +44,9 @@ public interface APIService {
     Call<Product> updateProduct(@Body Product product);
     @GET("/api/user/products")
     Call<List<Product>> getProductsPublisherId(@Query("publisherId") String publisherId);
+    @PUT("/api/user/feedback")
+    Call<Product> addComment(@Query("ratingAmount") int ratingAmount, @Query("ratingStar") double ratingStar, @Query("productId") String productId);
+
 
     @GET("/api/cart/productCart")
     Call<CartProduct> getProductCart(@Query("idProduct") String idProduct);
