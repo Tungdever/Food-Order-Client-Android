@@ -76,22 +76,21 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
         this.userId = id;
         viewBinderHelper.setOpenOnlyOne(true);
 
-        new FirebaseUserInfoHelper(mContext).readUserInfo(userId, new FirebaseUserInfoHelper.DataStatus() {
+        apiService = RetrofitClient.getRetrofit().create(APIService.class);
+        apiService.getUserByUserId(userId).enqueue(new Callback<User>() {
             @Override
-            public void DataIsLoaded(User user) {
-                userName = user.getUserName();
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    User user = response.body();
+                    userName = user.getUserName();
+                } else {
+                    Log.d("usernameCartAdapter", "unsuccessfully");
+                }
             }
 
             @Override
-            public void DataIsInserted() {
-            }
-
-            @Override
-            public void DataIsUpdated() {
-            }
-
-            @Override
-            public void DataIsDeleted() {
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.d("usernameCartAdapterFailure", t.getMessage());
             }
         });
     }
