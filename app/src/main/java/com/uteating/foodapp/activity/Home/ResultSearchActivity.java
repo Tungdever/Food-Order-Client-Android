@@ -1,5 +1,6 @@
 package com.uteating.foodapp.activity.Home;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -7,6 +8,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 
@@ -23,13 +26,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.uteating.foodapp.Interface.APIService;
+import com.uteating.foodapp.R;
 import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.adapter.Home.ResultSearchAdapter;
 import com.uteating.foodapp.databinding.ActivityResultSearchBinding;
 import com.uteating.foodapp.model.Product;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -42,7 +48,7 @@ public class ResultSearchActivity extends AppCompatActivity {
     private final DatabaseReference productsReference = FirebaseDatabase.getInstance().getReference("Products");
     private List<Product> dsCurrent;
     private List<Product> dsAll = new ArrayList<>();
-    private ArrayList<String> history_search = new ArrayList<>();
+    private List<String> history_search = new ArrayList<>();
     ;
     private ResultSearchAdapter adapter;
     private String userId;
@@ -50,7 +56,10 @@ public class ResultSearchActivity extends AppCompatActivity {
     Intent intent;
     APIService apiService;
     private int position = 0;
-    private int itemCount = 20;
+    private int itemCount = 5;
+
+    private ArrayAdapter<String> adapterItems;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,9 +74,85 @@ public class ResultSearchActivity extends AppCompatActivity {
         //Log.d("size", String.valueOf(dsAll.size()));
         getWindow().setStatusBarColor(Color.parseColor("#E8584D"));
         getWindow().setNavigationBarColor(Color.parseColor("#E8584D"));
+        String[] items = {"Giá giảm dần", "Giá tăng dần", "Đánh giá giảm dần", "Đánh giá tăng dần"};
+        adapterItems = new ArrayAdapter<>(this, R.layout.item_sort,items);
+        binding.autoCompleteTxt.setAdapter(adapterItems);
+        binding.autoCompleteTxt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String item = parent.getItemAtPosition(position).toString();
+                switch (position){
+                    case 0:
+                        List<Product> sortedList = dsAll.stream()
+                                .sorted(Comparator.comparing(Product::getProductPrice).reversed())
+                                .collect(Collectors.toList());
+                        dsCurrent.clear();
+                        dsAll.clear();
+                        dsAll.addAll(sortedList);
+                        int i1 = 0;
+                        position = 0;
+                        while (position < dsAll.size() && i1 < itemCount) {
+                            dsCurrent.add(dsAll.get(position));
+                            position++;
+                            i1++;
+                        }
+                        adapter.notifyDataSetChanged();
+                        break;
+                    case 1:
+                        List<Product> sortedList1 = dsAll.stream()
+                                .sorted(Comparator.comparing(Product::getProductPrice))
+                                .collect(Collectors.toList());
+                        dsCurrent.clear();
+                        dsAll.clear();
+                        dsAll.addAll(sortedList1);
+                        int i2 = 0;
+                        position = 0;
+                        while (position < dsAll.size() && i2 < itemCount) {
+                            dsCurrent.add(dsAll.get(position));
+                            position++;
+                            i2++;
+                        }
+                        adapter.notifyDataSetChanged();
+                        break;
+                    case 2:
+                        List<Product> sortedList2 = dsAll.stream()
+                                .sorted(Comparator.comparing(Product::getRatingStar).reversed())
+                                .collect(Collectors.toList());
+                        dsCurrent.clear();
+                        dsAll.clear();
+                        dsAll.addAll(sortedList2);
+                        int i3 = 0;
+                        position = 0;
+                        while (position < dsAll.size() && i3 < itemCount) {
+                            dsCurrent.add(dsAll.get(position));
+                            position++;
+                            i3++;
+                        }
+                        adapter.notifyDataSetChanged();
+                        break;
+                    case 3:
+                        List<Product> sortedList3 = dsAll.stream()
+                                .sorted(Comparator.comparing(Product::getRatingStar))
+                                .collect(Collectors.toList());
+                        dsCurrent.clear();
+                        dsAll.clear();
+                        dsAll.addAll(sortedList3);
+                        int i4 = 0;
+                        position = 0;
+                        while (position < dsAll.size() && i4 < itemCount) {
+                            dsCurrent.add(dsAll.get(position));
+                            position++;
+                            i4++;
+                        }
+                        adapter.notifyDataSetChanged();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
         adapter = new ResultSearchAdapter(dsCurrent, userId, this);
         binding.recycleFoodFinded.setAdapter(adapter);
-
         binding.searhView.setIconifiedByDefault(false);
         binding.searhView.setQuery(text, false);
         binding.searhView.clearFocus();
@@ -98,6 +183,9 @@ public class ResultSearchActivity extends AppCompatActivity {
         binding.btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent backIntent = new Intent();
+                backIntent.putStringArrayListExtra("history_search", (ArrayList<String>) history_search);
+                setResult(101,backIntent);
                 finish();
             }
         });
@@ -164,7 +252,10 @@ public class ResultSearchActivity extends AppCompatActivity {
         intent = getIntent();
         userId = intent.getStringExtra("userId");
         text = intent.getStringExtra("text");
-        history_search = (ArrayList<String>) intent.getStringArrayListExtra("search");
+        SharedPreferences sharedPreferences = this.getSharedPreferences("history_search", Context.MODE_PRIVATE);
+        history_search.add(sharedPreferences.getString("1st", ""));
+        history_search.add(sharedPreferences.getString("2nd", ""));
+        history_search.add(sharedPreferences.getString("3rd", ""));
 
         Log.d("text", text);
         dsCurrent = new ArrayList<>();
