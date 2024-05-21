@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +21,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.Interface.APIService;
 import com.uteating.foodapp.R;
-import com.uteating.foodapp.activity.FeedBackActivity;
+import com.uteating.foodapp.RetrofitClient;
+import com.uteating.foodapp.activity.feedback.FeedBackActivity;
 import com.uteating.foodapp.custom.FailToast;
 import com.uteating.foodapp.custom.SuccessfulToast;
 import com.uteating.foodapp.databinding.LayoutFeedbackBillifoBinding;
@@ -36,18 +39,23 @@ import com.uteating.foodapp.model.Product;
 import com.uteating.foodapp.model.Comment;
 
 
-
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class FeedBackAdapter extends RecyclerView.Adapter<FeedBackAdapter.ViewHolder> {
     private final Context mContext;
     private final ArrayList<BillInfo> ds;
     private final Bill currentBill;
     private final String userId;
+    private APIService apiService;
+    private Product tmp;
 
     //Contructor
-    public FeedBackAdapter(Context mContext, ArrayList<BillInfo> ds, Bill currentBill,String id) {
+    public FeedBackAdapter(Context mContext, ArrayList<BillInfo> ds, Bill currentBill, String id) {
         this.mContext = mContext;
         this.ds = ds;
         this.currentBill = currentBill;
@@ -62,7 +70,8 @@ public class FeedBackAdapter extends RecyclerView.Adapter<FeedBackAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull FeedBackAdapter.ViewHolder holder, int position) {
-        BillInfo item=ds.get(position);
+
+        BillInfo item = ds.get(position);
 
         holder.binding.edtComment.setText("");
         //Biến lưu lại rate với star bao nhiêu
@@ -75,25 +84,25 @@ public class FeedBackAdapter extends RecyclerView.Adapter<FeedBackAdapter.ViewHo
         holder.binding.star5.performClick();
 
         //Tìm thông tin products
-        FirebaseDatabase.getInstance().getReference("Products").child(item.getProductId()).addListenerForSingleValueEvent(new ValueEventListener() {
+        apiService = RetrofitClient.getRetrofit().create(APIService.class);
+        apiService.getProductInfor(item.getProductId()).enqueue(new Callback<Product>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Product tmp=snapshot.getValue(Product.class);
+            public void onResponse(Call<Product> call, Response<Product> response) {
+                tmp = response.body();
+                Log.d("ProductBillInfo", tmp.getProductName());
                 //set Thông tin
-                holder.binding.lnBillInfo.txtPrice.setText(CurrencyFormatter.getFormatter().format(item.getAmount()*Double.valueOf(tmp.getProductPrice()))+"");
+                holder.binding.lnBillInfo.txtPrice.setText(CurrencyFormatter.getFormatter().format(item.getAmount() * Double.valueOf(tmp.getProductPrice())) + "");
                 holder.binding.lnBillInfo.txtName.setText(tmp.getProductName());
-                holder.binding.lnBillInfo.txtCount.setText("Count: " +item.getAmount()+"");
-                Glide.with(mContext)
-                        .load(tmp.getProductImage1())
-                        .placeholder(R.drawable.default_image)
-                        .into(holder.binding.lnBillInfo.imgFood);
+                holder.binding.lnBillInfo.txtCount.setText("Count: " + item.getAmount() + "");
+                Glide.with(mContext).load(tmp.getProductImage1()).placeholder(R.drawable.default_image).into(holder.binding.lnBillInfo.imgFood);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(Call<Product> call, Throwable t) {
 
             }
         });
+
         //Set một listener theo dõi editText đó có vượt quá 200 kí tự không
         holder.binding.edtComment.addTextChangedListener(new TextWatcher() {
             @Override
@@ -133,20 +142,27 @@ public class FeedBackAdapter extends RecyclerView.Adapter<FeedBackAdapter.ViewHo
                             dialog.dismiss();
                             updateListBillInfo(item);
 
-                            FirebaseDatabase.getInstance().getReference().child("Products").child(item.getProductId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                            int ratingAmount = tmp.getRatingAmount() + 1;
+                            double ratingStar = (tmp.getRatingStar() * tmp.getRatingAmount() + starRating.getValue()) / ratingAmount;
+                            apiService = RetrofitClient.getRetrofit().create(APIService.class);
+                            apiService.addComment(ratingAmount, ratingStar, item.getProductId()).enqueue(new Callback<Product>() {
                                 @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    int ratingAmount = snapshot.child("ratingAmount").getValue(int.class) + 1;
-                                    double ratingStar = (snapshot.child("ratingStar").getValue(double.class) * snapshot.child("ratingAmount").getValue(int.class) + starRating.getValue()) / ratingAmount;
-                                    FirebaseDatabase.getInstance().getReference().child("Products").child(item.getProductId()).child("ratingAmount").setValue(ratingAmount);
-                                    FirebaseDatabase.getInstance().getReference().child("Products").child(item.getProductId()).child("ratingStar").setValue(ratingStar);
+                                public void onResponse(Call<Product> call, Response<Product> response) {
+                                    if (response.isSuccessful()) {
+
+                                        Log.d("Comment", "Success");
+
+                                    } else {
+                                        Log.d("Comment", "Fail");
+                                    }
                                 }
 
                                 @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
+                                public void onFailure(Call<Product> call, Throwable t) {
+                                    Log.d("CommentFailure", t.getMessage());
                                 }
                             });
+
                         } else {
                             new FailToast(mContext, "Some errors occurred!").showToast();
                             dialog.dismiss();
@@ -154,7 +170,7 @@ public class FeedBackAdapter extends RecyclerView.Adapter<FeedBackAdapter.ViewHo
                     }
                 });
             } else {
-                AlertDialog.Builder builder=new AlertDialog.Builder(mContext);
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                 builder.setIcon(R.drawable.icon_alert);
                 builder.setTitle("Chú ý");
                 builder.setMessage("Nhớ ghi comment nha bạn ơi!");
@@ -182,22 +198,26 @@ public class FeedBackAdapter extends RecyclerView.Adapter<FeedBackAdapter.ViewHo
         FirebaseDatabase.getInstance().getReference("BillInfos").child(currentBill.getBillId()).child(item.getBillInfoId()).child("check").setValue(true);
         //Cập nhật lại Bill nếu tất cả BillInfo đã feedback hết
         if (ds.isEmpty()) {
-            FirebaseDatabase.getInstance().getReference("Bills").child(currentBill.getBillId()).child("checkAllComment")
-                    .setValue(true);
+            FirebaseDatabase.getInstance().getReference("Bills").child(currentBill.getBillId()).child("checkAllComment").setValue(true);
             FeedBackActivity activity = getFeedBackActivity(mContext);
             if (activity != null) {
+                Log.d("FeedBackAdapter", "Finishing activity");
                 activity.finish();
+            } else {
+                Log.d("FeedBackAdapter", "Activity is null, cannot finish");
             }
-
+//            if (activity != null) {
+//                activity.finish();
+//            }
         }
     }
 
-    private void setEventForStar(ViewHolder viewHolder,IntegerWrapper starRating) {
-        viewHolder.binding.star1.setOnClickListener(view -> onStarClicked(view,viewHolder,starRating));
-        viewHolder.binding.star2.setOnClickListener(view -> onStarClicked(view,viewHolder,starRating));
-        viewHolder.binding.star3.setOnClickListener(view -> onStarClicked(view,viewHolder,starRating));
-        viewHolder.binding.star4.setOnClickListener(view -> onStarClicked(view,viewHolder,starRating));
-        viewHolder.binding.star5.setOnClickListener(view -> onStarClicked(view,viewHolder,starRating));
+    private void setEventForStar(ViewHolder viewHolder, IntegerWrapper starRating) {
+        viewHolder.binding.star1.setOnClickListener(view -> onStarClicked(view, viewHolder, starRating));
+        viewHolder.binding.star2.setOnClickListener(view -> onStarClicked(view, viewHolder, starRating));
+        viewHolder.binding.star3.setOnClickListener(view -> onStarClicked(view, viewHolder, starRating));
+        viewHolder.binding.star4.setOnClickListener(view -> onStarClicked(view, viewHolder, starRating));
+        viewHolder.binding.star5.setOnClickListener(view -> onStarClicked(view, viewHolder, starRating));
     }
 
     public static FeedBackActivity getFeedBackActivity(Context context) {
@@ -206,6 +226,7 @@ public class FeedBackAdapter extends RecyclerView.Adapter<FeedBackAdapter.ViewHo
         }
         return null;
     }
+
     public void onStarClicked(View view, ViewHolder viewHolder, IntegerWrapper starRating) {
         int clickedStarPosition = Integer.parseInt(view.getTag().toString());
         starRating.setValue(clickedStarPosition);
@@ -215,7 +236,6 @@ public class FeedBackAdapter extends RecyclerView.Adapter<FeedBackAdapter.ViewHo
         viewHolder.binding.star4.setImageResource(clickedStarPosition >= 4 ? R.drawable.star_filled : R.drawable.star_none);
         viewHolder.binding.star5.setImageResource(clickedStarPosition >= 5 ? R.drawable.star_filled : R.drawable.star_none);
     }
-
 
 
     @Override
@@ -233,38 +253,27 @@ public class FeedBackAdapter extends RecyclerView.Adapter<FeedBackAdapter.ViewHo
     }
 
     public void pushNotificationFeedBack(BillInfo billInfo) {
-        FirebaseDatabase.getInstance().getReference().child("Products").child(billInfo.getProductId()).addListenerForSingleValueEvent(new ValueEventListener() {
+        String title = "Product feedback";
+        String content = "Your product '" + tmp.getProductName() + "' have just got a new feedback. Go to product information to check it.";
+        Notification notification = FirebaseNotificationHelper.createNotification(title, content, tmp.getProductImage1(), tmp.getProductId(), "None", "None", null);
+        new FirebaseNotificationHelper(mContext).addNotification(tmp.getPublisherId(), notification, new FirebaseNotificationHelper.DataStatus() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Product product = snapshot.getValue(Product.class);
-                String title = "Product feedback";
-                String content = "Your product '" +product.getProductName() + "' have just got a new feedback. Go to product information to check it.";
-                Notification notification = FirebaseNotificationHelper.createNotification(title, content, product.getProductImage1(), product.getProductId(), "None", "None", null);
-                new FirebaseNotificationHelper(mContext).addNotification(product.getPublisherId(), notification, new FirebaseNotificationHelper.DataStatus() {
-                    @Override
-                    public void DataIsLoaded(List<Notification> notificationList, List<Notification> notificationListToNotify) {
+            public void DataIsLoaded(List<Notification> notificationList, List<Notification> notificationListToNotify) {
 
-                    }
-
-                    @Override
-                    public void DataIsInserted() {
-
-                    }
-
-                    @Override
-                    public void DataIsUpdated() {
-
-                    }
-
-                    @Override
-                    public void DataIsDeleted() {
-
-                    }
-                });
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void DataIsInserted() {
+
+            }
+
+            @Override
+            public void DataIsUpdated() {
+
+            }
+
+            @Override
+            public void DataIsDeleted() {
 
             }
         });

@@ -19,6 +19,7 @@ import com.uteating.foodapp.custom.CustomMessageBox.FailToast;
 import com.uteating.foodapp.custom.CustomMessageBox.SuccessfulToast;
 import com.uteating.foodapp.model.Bill;
 import com.uteating.foodapp.model.BillInfo;
+import com.uteating.foodapp.model.CartProduct;
 import com.uteating.foodapp.model.Product;
 
 import java.util.ArrayList;
@@ -37,10 +38,13 @@ public class FirebaseStatusOrderHelper {
     private List<Integer> soldValueList = new ArrayList<>();
     APIService apiService;
 
-    public interface DataStatus{
+    public interface DataStatus {
         void DataIsLoaded(List<Bill> bills, boolean isExistingBill);
+
         void DataIsInserted();
+
         void DataIsUpdated();
+
         void DataIsDeleted();
 
     }
@@ -56,8 +60,7 @@ public class FirebaseStatusOrderHelper {
         mReferenceStatusOrder = mDatabase.getReference();
     }
 
-    public void readConfirmBills(String userId, final DataStatus dataStatus)
-    {
+    public void readConfirmBills(String userId, final DataStatus dataStatus) {
         //Đọc và lấy các hoá đơn có trạng thái "Confirm" của một user
         mReferenceStatusOrder.addValueEventListener(new ValueEventListener() {
             @Override
@@ -66,7 +69,7 @@ public class FirebaseStatusOrderHelper {
                 boolean isExistingBill = false;
                 for (DataSnapshot keyNode : snapshot.child("Bills").getChildren()) {
                     if (keyNode.child("senderId").getValue(String.class).equals(userId)
-                    &&  keyNode.child("orderStatus").getValue(String.class).equals("Confirm")) {
+                            && keyNode.child("orderStatus").getValue(String.class).equals("Confirm")) {
                         Bill bill = keyNode.getValue(Bill.class);
                         bills.add(bill);
                         isExistingBill = true;
@@ -84,19 +87,17 @@ public class FirebaseStatusOrderHelper {
             }
         });
     }
-    public void readShippingBills(String userId, final DataStatus dataStatus)
-    {
-        //ọc và lấy các hoá đơn có trạng thái "Shipping" của một user
+
+    public void readShippingBills(String userId, final DataStatus dataStatus) {
+        //Dọc và lấy các hoá đơn có trạng thái "Shipping" của một user
         mReferenceStatusOrder.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 bills.clear();
                 boolean isExistingShippintBill = false;
-                for (DataSnapshot keyNode : snapshot.child("Bills").getChildren())
-                {
+                for (DataSnapshot keyNode : snapshot.child("Bills").getChildren()) {
                     if (keyNode.child("senderId").getValue(String.class).equals(userId)
-                            &&  keyNode.child("orderStatus").getValue(String.class).equals("Shipping"))
-                    {
+                            && keyNode.child("orderStatus").getValue(String.class).equals("Shipping")) {
                         Bill bill = keyNode.getValue(Bill.class);
                         bills.add(bill);
                         isExistingShippintBill = true;
@@ -114,8 +115,8 @@ public class FirebaseStatusOrderHelper {
             }
         });
     }
-    public void readCompletedBills(String userId,final DataStatus dataStatus)
-    {
+
+    public void readCompletedBills(String userId, final DataStatus dataStatus) {
         //Đọc và lấy các hoá đơn có trạng thái "Completed" của một user
         mReferenceStatusOrder.addValueEventListener(new ValueEventListener() {
             @Override
@@ -142,30 +143,16 @@ public class FirebaseStatusOrderHelper {
         });
     }
 
-    public void setConfirmToShipping(String billId,final DataStatus dataStatus) {
+    public void setConfirmToShipping(String billId, final DataStatus dataStatus) {
         //Cập nhật trạng thái của một hoá đơn từ "Confirm" sang "Shipping".
-        mReferenceStatusOrder.child("Bills").child(billId).child("orderStatus").setValue("Shipping")
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        if (dataStatus != null) {
-                            dataStatus.DataIsUpdated();
-                        }
-                    }
-                });
-    }
-    public void setShippingToCompleted(String billId,final DataStatus dataStatus) {
-        //Cập nhật trạng thái của một hoá đơn từ "Shipping" sang "Completed".
-        mReferenceStatusOrder.child("Bills").child(billId).child("orderStatus").setValue("Completed")
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        if (dataStatus != null) {
-                            dataStatus.DataIsUpdated();
-                        }
-                    }
-                });
-
+        mReferenceStatusOrder.child("Bills").child(billId).child("orderStatus").setValue("Shipping").addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                if (dataStatus != null) {
+                    dataStatus.DataIsUpdated();
+                }
+            }
+        });
         // set sold and remainAmount value of Product
         billInfoList = new ArrayList<>();
         soldValueList = new ArrayList<>();
@@ -173,8 +160,7 @@ public class FirebaseStatusOrderHelper {
         mReferenceStatusOrder.child("BillInfos").child(billId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot keyNode: snapshot.getChildren())
-                {
+                for (DataSnapshot keyNode : snapshot.getChildren()) {
                     BillInfo billInfo = keyNode.getValue(BillInfo.class);
                     billInfoList.add(billInfo);
                 }
@@ -188,35 +174,45 @@ public class FirebaseStatusOrderHelper {
         });
     }
 
+    public void setShippingToCompleted(String billId, final DataStatus dataStatus) {
+
+        //Cập nhật trạng thái của một hoá đơn từ "Shipping" sang "Completed".
+        mReferenceStatusOrder.child("Bills").child(billId).child("orderStatus").setValue("Completed").addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                if (dataStatus != null) {
+                    dataStatus.DataIsUpdated();
+                }
+            }
+        });
+    }
+
     public void readSomeInfoOfBill() {
         // Đọc thông tin về số lượng bán và cập nhật các giá trị liên quan cho các sản phẩm trong hoá đơn.
         apiService = RetrofitClient.getRetrofit().create(APIService.class);
-
-        apiService.getAllProducts().enqueue(new Callback<List<Product>>() {
-            @Override
-            public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
-                if (response.body() != null) {
-                    List<Product> products = response.body();
-                    for (BillInfo info : billInfoList) {
-                        for (Product pro : products) {
-                            if (info.getProductId().equals(pro.getProductId())) {
-                                int sold = info.getAmount() + pro.getSold();
-                                int amount = pro.getRemainAmount();
-                                soldValueList.add(sold);
-                                pro.setSold(sold);
-                                pro.setRemainAmount(amount - sold);
-                                updateSoldValueOfProduct(pro);  // Gọi hàm để cập nhật sản phẩm
-                            }
+        for (BillInfo info : billInfoList) {
+            apiService.getProductInfor(info.getProductId()).enqueue(new Callback<Product>() {
+                @Override
+                public void onResponse(Call<Product> call, Response<Product> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Product pro = response.body();
+                        if (info.getProductId().equals(pro.getProductId())) {
+                            int sold = info.getAmount() + pro.getSold();
+                            int amount = pro.getRemainAmount();
+                            soldValueList.add(sold);
+                            pro.setSold(sold);
+                            pro.setRemainAmount(amount - sold);
+                            updateSoldValueOfProduct(pro);
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<List<Product>> call, Throwable t) {
-                // Xử lý lỗi khi không thể lấy danh sách sản phẩm
-            }
-        });
+                @Override
+                public void onFailure(Call<Product> call, Throwable t) {
+
+                }
+            });
+        }
     }
 
 
@@ -227,11 +223,13 @@ public class FirebaseStatusOrderHelper {
                 if (response.isSuccessful()) {
                 }
             }
+
             @Override
             public void onFailure(Call<Product> call, Throwable t) {
-                // Xử lý lỗi khi không thể cập nhật sản phẩm
+
             }
         });
     }
+
 
 }

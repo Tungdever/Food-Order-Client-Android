@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.webkit.MimeTypeMap;
@@ -30,7 +31,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.uteating.foodapp.Interface.APIService;
 import com.uteating.foodapp.R;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.custom.CustomMessageBox.CustomAlertDialog;
 import com.uteating.foodapp.custom.CustomMessageBox.FailToast;
 import com.uteating.foodapp.custom.CustomMessageBox.SuccessfulToast;
@@ -41,12 +44,17 @@ import com.uteating.foodapp.model.User;
 import java.util.HashMap;
 import java.util.Objects;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class EditProfileActivity extends AppCompatActivity {
     private ActivityEditProfileBinding binding;
     private DatePickerDialog datePickerDialog;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private String imageUrl;
-    private String userId;
+    private User user;
+    private APIService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,10 +66,11 @@ public class EditProfileActivity extends AppCompatActivity {
         getWindow().setNavigationBarColor(Color.parseColor("#E8584D"));
 
         Intent intent = getIntent();
-        userId = intent.getStringExtra("userId");
+
+        user = (User) intent.getSerializableExtra("user");
 
         initToolbar();
-        initDatePickerDialog();
+
         initImagePickerActivity();
 
         getInfo();
@@ -80,67 +89,20 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         });
 
-        binding.userName.addTextChangedListener(new TextWatcher() {
+        binding.fullName.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
             }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
 
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
-                FirebaseDatabase.getInstance().getReference().child("Users").child(userId).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        User user = snapshot.getValue(User.class);
-
-                        binding.update.setEnabled(!(user.getUserName().equals(binding.userName.getText().toString()) &&
-                                user.getEmail().equals(binding.email.getText().toString()) &&
-                                user.getPhoneNumber().equals(binding.phoneNumber.getText().toString()) &&
-                                user.getBirthDate().equals(binding.birthDate.getText().toString())));
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-            }
-        });
-
-        binding.email.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                FirebaseDatabase.getInstance().getReference().child("Users").child(userId).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        User user = snapshot.getValue(User.class);
-
-                        binding.update.setEnabled(!(user.getUserName().equals(binding.userName.getText().toString()) &&
-                                user.getEmail().equals(binding.email.getText().toString()) &&
-                                user.getPhoneNumber().equals(binding.phoneNumber.getText().toString()) &&
-                                user.getBirthDate().equals(binding.birthDate.getText().toString())));
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
+            public void afterTextChanged(Editable s) {
+                updateBinding();
             }
         });
 
@@ -157,61 +119,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                FirebaseDatabase.getInstance().getReference().child("Users").child(userId).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        User user = snapshot.getValue(User.class);
-
-                        binding.update.setEnabled(!(user.getUserName().equals(binding.userName.getText().toString()) &&
-                                user.getEmail().equals(binding.email.getText().toString()) &&
-                                user.getPhoneNumber().equals(binding.phoneNumber.getText().toString()) &&
-                                user.getBirthDate().equals(binding.birthDate.getText().toString())));
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-            }
-        });
-
-        binding.birthDate.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                FirebaseDatabase.getInstance().getReference().child("Users").child(userId).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        User user = snapshot.getValue(User.class);
-
-                        binding.update.setEnabled(!(user.getUserName().equals(binding.userName.getText().toString()) &&
-                                user.getEmail().equals(binding.email.getText().toString()) &&
-                                user.getPhoneNumber().equals(binding.phoneNumber.getText().toString()) &&
-                                user.getBirthDate().equals(binding.birthDate.getText().toString())));
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-            }
-        });
-
-        binding.datePicker.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                datePickerDialog.show();
+                updateBinding();
             }
         });
 
@@ -224,17 +132,11 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void updateInfo() {
-        String emailTxt = binding.email.getText().toString().trim();
+        String fullNameTxt = binding.fullName.getText().toString().trim();
         String phoneNumberTxt = binding.phoneNumber.getText().toString().trim();
-        String userNameTxt = binding.userName.getText().toString().trim();
 
-        if (emailTxt.equals("")) {
-            new FailToast(this, "Email must not be empty!").showToast();
-            return;
-        }
-
-        if (!Patterns.EMAIL_ADDRESS.matcher(emailTxt).matches()) {
-            new FailToast(this, "Invalid email!!").showToast();
+        if (fullNameTxt.equals("")) {
+            new FailToast(this, "Full name must not be empty!").showToast();
             return;
         }
 
@@ -243,30 +145,25 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
 
-        if (userNameTxt.equals("")) {
-            new FailToast(this, "User name must not be empty!").showToast();
-            return;
-        }
+        user.setFullName(binding.fullName.getText().toString());
+        user.setPhoneNumber(binding.phoneNumber.getText().toString());
 
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("avatarURL", imageUrl);
-        map.put("birthDate", binding.birthDate.getText().toString());
-        map.put("email", binding.email.getText().toString());
-        map.put("phoneNumber", binding.phoneNumber.getText().toString());
-        map.put("userName", binding.userName.getText().toString());
-
-        FirebaseDatabase.getInstance().getReference().child("Users").child(userId).updateChildren(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+        apiService =  RetrofitClient.getRetrofit().create(APIService.class);
+        apiService.updateUser(user).enqueue(new Callback<User>() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
                     new SuccessfulToast(EditProfileActivity.this, "Updated successfully!").showToast();
+                } else {
+                    Log.d("updateUser", response.message());
                 }
             }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.d("updateUserFailure", t.getMessage());
+            }
         });
-
-        //Todo: not update in auth due to link
-//        firebaseUser.updateEmail(email.getText().toString());
-
         finish();
     }
 
@@ -296,23 +193,12 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void getInfo() {
-        FirebaseDatabase.getInstance().getReference().child("Users").child(userId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User user = snapshot.getValue(User.class);
-                Glide.with(getApplicationContext()).load(user.getAvatarURL()).placeholder(R.drawable.default_avatar).into(binding.profileImage);
-                binding.userName.setText(user.getUserName());
-                binding.email.setText(user.getEmail());
-                binding.phoneNumber.setText(user.getPhoneNumber());
-                binding.birthDate.setText(user.getBirthDate());
-                imageUrl = user.getAvatarURL();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        Glide.with(getApplicationContext()).load(user.getAvatarURL()).placeholder(R.drawable.default_avatar).into(binding.profileImage);
+        binding.fullName.setText(user.getFullName());
+        binding.userName.setText(user.getUserName());
+        binding.email.setText(user.getEmail());
+        binding.phoneNumber.setText(user.getPhoneNumber());
+        imageUrl = user.getAvatarURL() != null ? user.getAvatarURL() : "";
     }
 
     void uploadImage(Uri imageUri) {
@@ -342,37 +228,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 }
             });
         }
-    }
-
-    private void initDatePickerDialog() {
-        DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int date) {
-                month++;
-                binding.birthDate.setText(getDMY(date, month, year));
-            }
-        };
-
-        int style = AlertDialog.BUTTON_NEGATIVE;
-
-        FirebaseDatabase.getInstance().getReference().child("Users").child(userId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User user = snapshot.getValue(User.class);
-                String txtBirthDate = user.getBirthDate();
-                String[] dateSplit = cutDay(txtBirthDate);
-                int date = Integer.parseInt(dateSplit[0]);
-                int month = Integer.parseInt(dateSplit[1]);
-                int year = Integer.parseInt(dateSplit[2]);
-
-                datePickerDialog = new DatePickerDialog(EditProfileActivity.this, style, dateSetListener, year, month - 1, date);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
     }
 
     private void initToolbar() {
@@ -407,26 +262,18 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
-    private String getDMY(int date, int month, int year) {
-        if ((date >= 1 && date <= 9) && (month >= 1 && month <= 9))
-            return "0" + date + "/" + "0" + month + "/" + year;
-
-        if (date >= 1 && date <= 9)
-            return "0" + date + "/" + month + "/" + year;
-
-        if (month >= 1 && month <= 9)
-            return date + "/" + "0" + month + "/" + year;
-
-        return date + "/" + month + "/" + year;
-    }
-
     private String getFileExtension(Uri uri) {
         return MimeTypeMap.getSingleton().getExtensionFromMimeType(getContentResolver().getType(uri));
     }
 
-    private String[] cutDay(String date)
-    {
-        String[] arrOfStr = date.split("/");
-        return arrOfStr;
+
+    void updateBinding() {
+        String fullName = binding.fullName.getText().toString();
+        String phoneNumber = binding.phoneNumber.getText().toString();
+
+        boolean isFullNameChanged = user.getFullName() != null ? !user.getFullName().equals(fullName) : fullName != null;
+        boolean isPhoneNumberChanged = user.getPhoneNumber() != null ? !user.getPhoneNumber().equals(phoneNumber) : phoneNumber != null;
+
+        binding.update.setEnabled(isFullNameChanged || isPhoneNumberChanged);
     }
 }

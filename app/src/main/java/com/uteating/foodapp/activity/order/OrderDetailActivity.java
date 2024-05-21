@@ -16,7 +16,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.uteating.foodapp.R;
-import com.uteating.foodapp.activity.FeedBackActivity;
+import com.uteating.foodapp.activity.feedback.FeedBackActivity;
 import com.uteating.foodapp.adapter.orderAdapter.OrderDetailAdapter;
 import com.uteating.foodapp.databinding.ActivityOrderDetailBinding;
 import com.uteating.foodapp.dialog.LoadingDialog;
