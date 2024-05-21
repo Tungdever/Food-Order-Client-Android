@@ -19,6 +19,16 @@ public class Product implements Serializable {
     private String publisherId;
     private String state;
 
+    private boolean checked;
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
+    }
+
     public Product() {
     }
 
@@ -38,6 +48,24 @@ public class Product implements Serializable {
         this.publisherId = publisherId;
         this.state = state;
     }
+    public Product(String productId, String productName, String productImage1, String productImage2, String productImage3, String productImage4, int productPrice, String productType, int remainAmount, int sold, String description, Double ratingStar, int ratingAmount, String publisherId, String state, boolean checked) {
+        this.productId = productId;
+        this.productName = productName;
+        this.productImage1 = productImage1;
+        this.productImage2 = productImage2;
+        this.productImage3 = productImage3;
+        this.productImage4 = productImage4;
+        this.productPrice = productPrice;
+        this.productType = productType;
+        this.remainAmount = remainAmount;
+        this.sold = sold;
+        this.description = description;
+        this.ratingStar = ratingStar;
+        this.ratingAmount = ratingAmount;
+        this.publisherId = publisherId;
+        this.state = state;
+        this.checked = checked;
+    }
     public Product(String productId, String productName, String productImage1, String productImage2, String productImage3, String productImage4, int productPrice, String productType, int remainAmount, int sold, String description, Double ratingStar, int ratingAmount, String publisherId, String state) {
         this.productId = productId;
         this.productName = productName;
@@ -54,6 +82,7 @@ public class Product implements Serializable {
         this.ratingAmount = ratingAmount;
         this.publisherId = publisherId;
         this.state = state;
+
     }
 
     public String getProductId() {

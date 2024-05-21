@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 import com.uteating.foodapp.activity.Home.ResultSearchActivity;
 import com.uteating.foodapp.databinding.ItemManagerProductBinding;
 import com.uteating.foodapp.databinding.ItemSearchBinding;
@@ -46,6 +48,11 @@ public class ManagerAdapter extends RecyclerView.Adapter{
             ViewHolder viewHolder=(ViewHolder) holder;
             viewHolder.binding.txtFoodName.setText(item.getProductName());
             viewHolder.binding.txtUserId.setText("UserId: "+ userId);
+            Glide.with(viewHolder.binding.getRoot())
+                    .load(item.getProductImage1())
+                    .into(viewHolder.binding.imgFood);
+            viewHolder.binding.sw.setChecked(item.isChecked());
+
             viewHolder.binding.parentOfItemInHome.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

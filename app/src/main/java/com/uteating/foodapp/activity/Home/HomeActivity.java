@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,7 +39,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.uteating.foodapp.Interface.APIService;
 import com.uteating.foodapp.R;
+import com.uteating.foodapp.RetrofitClient;
 import com.uteating.foodapp.activity.Cart_PlaceOrder.CartActivity;
 import com.uteating.foodapp.activity.Cart_PlaceOrder.EmptyCartActivity;
 import com.uteating.foodapp.activity.MyShop.MyShopActivity;
@@ -65,11 +68,16 @@ import com.uteating.foodapp.model.User;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private String userId;
     private ActivityHomeBinding binding;
     private LinearLayout layoutMain;
     private Fragment selectionFragment;
+    private APIService apiService;
 
     private static final int NOTIFICATION_PERMISSION_CODE = 10023;
     private static final int STORAGE_PERMISSION_CODE = 101;
@@ -80,6 +88,26 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Log.d("userId", userId);
+        apiService =  RetrofitClient.getRetrofit().create(APIService.class);
+        apiService.getUserByUserId(userId).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                User user = response.body();
+                if (!user.isAdmin()) {
+                    Menu navMenu = binding.navigationLeft.getMenu();
+                    MenuItem item = navMenu.findItem(R.id.manager);
+                    item.setVisible(false);
+                }
+                Log.d("Admin", String.valueOf(user.isAdmin()));
+            }
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+
+            }
+        });
+
+
         // Request permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(HomeActivity.this,

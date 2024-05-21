@@ -20,13 +20,13 @@
         android:icon="@drawable/shop_icon"
         app:cnb_iconColor="@color/main"/>
     <item
-        android:id="@+id/logoutMenu"
-        android:title="Log Out"
-        android:icon="@drawable/logout_icon"
-        app:cnb_iconColor="@color/main"/>
-    <item
         android:id="@+id/manager"
         android:icon="@drawable/baseline_manages_24"
         android:title="Manager"
         app:cnb_iconColor="@color/main" />
+    <item
+        android:id="@+id/logoutMenu"
+        android:title="Log Out"
+        android:icon="@drawable/logout_icon"
+        app:cnb_iconColor="@color/main"/>
 </menu>
